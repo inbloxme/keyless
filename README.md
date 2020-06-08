@@ -35,11 +35,11 @@ Happy #BUIDLing
 
 Install the package by running the command,
 
-`npm install @inbloxme/inblox-keyless-txns`
+`npm install @inbloxme/keyless`
 
 Import the package into your project using,
 
-`const inblox = require('@inbloxme/inblox-keyless-txns');`
+`const inblox = require('@inbloxme/keyless');`
 
 ## **Password Based Transaction Sign**
 
@@ -47,45 +47,55 @@ Import the package into your project using,
 
 Initialise the constructor using,
 
-`const PBTS = new inblox.PBTS(authenticationToken);`
+`const keyless = new inblox.Keyless(apiKey, apiSecret, infuraKey);`
+
+> Get User
+
+This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
+
+`const getUser = keyless.getUser({ userName, password });`
+
+`userName` - The Inblox username of the user. `password` - The Inblox password of the user.
+
 
 > Sign Transaction
 
 This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
 
-`const signTx = PBTS.signAndSendTx({ password, rawTx });`
+`const signedTx = keyless.signTransaction({ to, value, gasPrice, gasLimit, data, nonce, password });`
 
-`password` - The Inblox password of the user. `rawTx` - The raw transaction object.
+`to` (required) - THe address of the recepient.
+`value` (required) - The amount to be sent.
+`password` (required) - The Inblox password of the user.
+`gasPrice` (optional) - The gas price.
+`gasLimit` (optional) - Gas Limit.
+`data` (optional) - Data.
+`nonce` (optional) - Nonce.
 
-The `rawTx` object contains, `to` - Address to send the transaction to. `from` - Address of the sender. `gasPrice` - Price of gas in wei. `gasLimit` - Gas Limit for the transaction. `nonce` - Nonce of the sender address. `value` - Amount to be sent in the transaction. `data` - Data to be passed in the transaction. Can be a contract call data.
 
-## **Login Via Inblox**
+> Send Transaction
 
-> Initialising
+This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
 
-To use Login Via Inblox method, initialise the constructor using,
+`const sendTx = keyless.sendTx({ signedTx });`
 
-`const loginViaInblox = new inblox.LoginViaInblox(accessToken);`
+`signedTx` (required) - Signed Transaction in string.
 
-> Login Via Inblox
 
-This method is used to generate a Bearer token from the Inblox backend systems which can be used to initiate request to access protected resources.
+> Sign and send Transaction
 
-`const token = loginViaInblox.login({ userName, password });`
+This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
 
-`userName` - The user's handlename or the email id associated with Inblox platform. `password` - The Inblox password of the user.
+`const signAndSendTx = keyless.signAndSendTx({ to, value, gasPrice, gasLimit, data, nonce, password });`
 
-> LogOut
+`to` (required) - THe address of the recepient.
+`value` (required) - The amount to be sent.
+`password` (required) - The Inblox password of the user.
+`gasPrice` (optional) - The gas price.
+`gasLimit` (optional) - Gas Limit.
+`data` (optional) - Data.
+`nonce` (optional) - Nonce.
 
-This method is used to logout from the Inblox platform.
-
-`const token = loginViaInblox.logout();`
-
-> Sign Transaction
-
-This method enables
-
-> Note - For all the methods, errors are returned under error key and success is returned under response key.
 
 ## **WIP**
 
