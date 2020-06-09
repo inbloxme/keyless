@@ -2,7 +2,7 @@
 
 This package enables usage of inblox handlename infrastructure as a keyless signing mechanism.
 
-> Disclaimer - This is WIP, and release in alpha.
+> Disclaimer - This is WIP, and release in beta.
 
 ## **Keyless Tranasctions**
 
