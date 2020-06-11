@@ -1,7 +1,7 @@
 {
-  "name": "inblox-keyless-tx-public",
+  "name": "@inbloxme/keyless-transactions",
   "version": "1.0.0",
-  "description": "",
+  "description": "This package enables usage of inblox handlename infrastructure as a keyless signing mechanism.",
   "main": "src/index.js",
   "scripts": {
     "test": "npm-run-all --silent test-*",
@@ -23,5 +23,13 @@
     "crypto-js": "^4.0.0",
     "ethereumjs-tx": "^2.1.2",
     "web3": "^1.2.8"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inbloxme/keyless.git"
+  },
+  "bugs": {
+    "url": "https://github.com/inbloxme/keyless/issues"
+  },
+  "homepage": "https://github.com/inbloxme/keyless#readme"
 }
