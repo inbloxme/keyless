@@ -16,7 +16,7 @@ class Keyless {
   }
 
   async getUser({ userName, password }) {
-    const url = `${AUTH_SERVICE_URL}/auth/login`;
+    const url = `${AUTH_SERVICE_URL}/auth/keyless-login`;
     const params = { userName, password };
 
     const { error, response } = await postRequest({ url, params });
@@ -47,7 +47,8 @@ class Keyless {
       return { error: DECRYPT_KEY_ERROR };
     }
 
-    const accountObject = this.web3.eth.accounts.privateKeyToAccount(privateKey);
+    const pKey = privateKey.slice(2);
+    const accountObject = this.web3.eth.accounts.privateKeyToAccount(pKey);
 
     const defaultGasPrice = await this.web3.eth.getGasPrice();
 
@@ -66,7 +67,7 @@ class Keyless {
       chainId: 3,
     };
 
-    const pkey = Buffer.from(privateKey, 'hex');
+    const pkey = Buffer.from(pKey, 'hex');
     const tx = new Tx(rawTx, { chain: 'ropsten', hardfork: 'petersburg' });
 
     tx.sign(pkey);
