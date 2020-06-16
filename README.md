@@ -49,6 +49,35 @@ Initialise the constructor using,
 
 `const keyless = new inblox.Keyless(apiKey, apiSecret, infuraKey);`
 
+
+> Import wallet using Keystore JSON
+
+This method can be used to import a wallet information using the keystore json and password as parameters.
+
+`const wallet = inblox.importFromEncryptedJson(jsonData, password);`
+
+`jsonData` - The JSON data of the keystore file. 
+`password` - The password of the keystore file.
+
+
+> Import wallet using Mnemonic phrase
+
+This method can be used to import a wallet information using the 12 word seed phrase.
+
+`const wallet = inblox.importFromMnemonic(mnemonic);`
+
+`mnemonic` - The 12 word seed phrase.
+
+
+> Import wallet using private key
+
+This method can be used to import a wallet information using the private key.
+
+`const wallet = inblox.importFromPrivateKey(privateKey);`
+
+`privateKey` - The private key of the wallet. 
+
+
 > Get User
 
 This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
