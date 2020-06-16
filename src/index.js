@@ -88,8 +88,7 @@ class Keyless {
   }
 
   async sendTx({ signedTx }) {
-    const response = this.web3.eth.sendSignedTransaction(signedTx)
-      .then((hash) => ({ response: hash }));
+    const response = await this.web3.eth.sendSignedTransaction(signedTx);
 
     if (response) {
       return { response: { transactionHash: response.transactionHash } };

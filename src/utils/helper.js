@@ -2,7 +2,7 @@ const axios = require('axios');
 const cryptojs = require('crypto-js');
 
 const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD } = require('../config');
-const { INCORRECT_PASSWORD } = require('../constants/responses');
+const { INCORRECT_PASSWORD, INVALID_ENV } = require('../constants/responses');
 
 async function getBaseURL(env) {
   if (env === 'dev') {
@@ -11,7 +11,7 @@ async function getBaseURL(env) {
     return { response: AUTH_SERVICE_URL_PROD };
   }
 
-  return { error: 'Invalid environment value.' };
+  return { error: INVALID_ENV };
 }
 
 async function postRequest({ params, url, authToken }) {
