@@ -2,20 +2,31 @@
 const Web3 = require('web3');
 const Tx = require('ethereumjs-tx').Transaction;
 
-const { AUTH_SERVICE_URL, DEFAULT_GAS_LIMIT } = require('./config');
-const { postRequest, getEncryptedPKey, decryptKey } = require('./utils/helper');
+const { DEFAULT_GAS_LIMIT } = require('./config');
+const {
+  postRequest, getEncryptedPKey, decryptKey, getBaseURL,
+} = require('./utils/helper');
 const { TRANSACTION_ERROR } = require('./constants/responses');
 
 class Keyless {
-  constructor({ apiKey, apiSecret, infuraKey }) {
+  constructor({
+    apiKey, apiSecret, infuraKey, env,
+  }) {
     this.authToken = '';
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.infuraKey = infuraKey;
+    this.env = env;
     this.web3 = new Web3(new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/${this.infuraKey}`));
   }
 
   async getUser({ userName, password }) {
+    const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
+
+    if (ENV_ERROR) {
+      return { error: ENV_ERROR };
+    }
+
     const url = `${AUTH_SERVICE_URL}/auth/keyless-login`;
     const params = { userName, password };
 
@@ -35,7 +46,7 @@ class Keyless {
   async signTransaction({
     to, value, gasPrice, gasLimit, data, nonce, password,
   }) {
-    const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await getEncryptedPKey({ password, authToken: this.authToken });
+    const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await getEncryptedPKey({ password, authToken: this.authToken, env: this.env });
 
     if (ENCRYPTED_PKEY_ERROR) {
       return { error: ENCRYPTED_PKEY_ERROR };
@@ -77,7 +88,8 @@ class Keyless {
   }
 
   async sendTx({ signedTx }) {
-    const response = await this.web3.eth.sendSignedTransaction(signedTx);
+    const response = this.web3.eth.sendSignedTransaction(signedTx)
+      .then((hash) => ({ response: hash }));
 
     if (response) {
       return { response: { transactionHash: response.transactionHash } };
