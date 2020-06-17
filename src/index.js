@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+const ethers = require('ethers');
 const Web3 = require('web3');
 const Tx = require('ethereumjs-tx').Transaction;
 
@@ -6,7 +7,45 @@ const { DEFAULT_GAS_LIMIT } = require('./config');
 const {
   postRequest, getEncryptedPKey, decryptKey, getBaseURL,
 } = require('./utils/helper');
-const { TRANSACTION_ERROR } = require('./constants/responses');
+const {
+  TRANSACTION_ERROR, WRONG_PASSWORD, INVALID_MNEMONIC, INVALID_PRIVATE_KEY,
+} = require('./constants/responses');
+
+async function importFromEncryptedJson(jsonData, password) {
+  const json = JSON.stringify(jsonData);
+
+  try {
+    const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
+
+    return {
+      response: wallet,
+    };
+  } catch (error) {
+    return { error: WRONG_PASSWORD };
+  }
+}
+
+async function importFromMnemonic(mnemonic) {
+  try {
+    const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+
+    return {
+      response: wallet,
+    };
+  } catch (error) {
+    return { error: INVALID_MNEMONIC };
+  }
+}
+
+async function importFromPrivateKey(privateKey) {
+  try {
+    const { address } = new ethers.utils.SigningKey(privateKey);
+
+    return { response: { publicAddress: address, privateKey } };
+  } catch (error) {
+    return { error: INVALID_PRIVATE_KEY };
+  }
+}
 
 class Keyless {
   constructor({
@@ -118,4 +157,6 @@ class Keyless {
   }
 }
 
-module.exports = { Keyless };
+module.exports = {
+  Keyless, importFromEncryptedJson, importFromMnemonic, importFromPrivateKey,
+};
