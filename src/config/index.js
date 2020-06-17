@@ -1,5 +1,5 @@
 module.exports = {
-  AUTH_SERVICE_URL: 'https://auth.inblox.me',
-  INFURA_KEY: 'c52ef01cba8b4e1d8aa98c12c64318a9',
+  AUTH_SERVICE_URL_PROD: 'https://auth.inblox.me',
+  AUTH_SERVICE_URL_DEV: 'https://dev-auth.inblox.me',
   DEFAULT_GAS_LIMIT: 6000000,
 };

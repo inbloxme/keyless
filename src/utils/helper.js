@@ -1,8 +1,18 @@
 const axios = require('axios');
 const cryptojs = require('crypto-js');
 
-const { AUTH_SERVICE_URL } = require('../config');
-const { INCORRECT_PASSWORD } = require('../constants/responses');
+const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD } = require('../config');
+const { INCORRECT_PASSWORD, INVALID_ENV } = require('../constants/responses');
+
+async function getBaseURL(env) {
+  if (env === 'dev') {
+    return { response: AUTH_SERVICE_URL_DEV };
+  } if (env === undefined || env === 'prod') {
+    return { response: AUTH_SERVICE_URL_PROD };
+  }
+
+  return { error: INVALID_ENV };
+}
 
 async function postRequest({ params, url, authToken }) {
   try {
@@ -21,7 +31,13 @@ async function postRequest({ params, url, authToken }) {
   }
 }
 
-async function validatePassword({ password, authToken }) {
+async function validatePassword({ password, authToken, env }) {
+  const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(env);
+
+  if (ENV_ERROR) {
+    return { error: ENV_ERROR };
+  }
+
   const url = `${AUTH_SERVICE_URL}/auth/authenticate-password`;
   const { response, error } = await postRequest({ params: { password }, url, authToken });
 
@@ -32,10 +48,20 @@ async function validatePassword({ password, authToken }) {
   return { response };
 }
 
-async function generateToken({ params, authToken, scope }) {
+async function generateToken({
+  params, authToken, scope, env,
+}) {
   try {
+    const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(env);
+
+    if (ENV_ERROR) {
+      return { error: ENV_ERROR };
+    }
+
+    const url = `${AUTH_SERVICE_URL}/auth/generate-token/?scope=${scope}`;
+
     const response = await axios({
-      url: `${AUTH_SERVICE_URL}/auth/generate-token/?scope=${scope}`,
+      url,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -66,8 +92,8 @@ async function getRequest({ url, authToken, accessToken }) {
   }
 }
 
-async function getEncryptedPKey({ password, authToken }) {
-  const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken });
+async function getEncryptedPKey({ password, authToken, env }) {
+  const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken, env });
 
   if (VALIDATE_PASSWORD_ERROR) {
     return { error: VALIDATE_PASSWORD_ERROR };
@@ -77,14 +103,23 @@ async function getEncryptedPKey({ password, authToken }) {
     params: { password },
     authToken,
     scope: 'transaction',
+    env,
   });
 
   if (GET_ACCESS_TOKEN_ERROR) {
     return { error: GET_ACCESS_TOKEN_ERROR };
   }
 
+  const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(env);
+
+  if (ENV_ERROR) {
+    return { error: ENV_ERROR };
+  }
+
+  const url = `${AUTH_SERVICE_URL}/auth/private-key`;
+
   const { data, error: GET_ENCRYPTED_PRIVATE_KEY } = await getRequest({
-    url: `${AUTH_SERVICE_URL}/auth/private-key`,
+    url,
     authToken,
     accessToken,
   });
@@ -107,4 +142,6 @@ async function decryptKey({ encryptedPrivateKey, password }) {
   return { response: privateKey };
 }
 
-module.exports = { postRequest, getEncryptedPKey, decryptKey };
+module.exports = {
+  postRequest, getEncryptedPKey, decryptKey, getBaseURL,
+};
