@@ -2,7 +2,8 @@ const axios = require('axios');
 const cryptojs = require('crypto-js');
 
 const { AUTH_SERVICE_URL } = require('../config');
-const { INCORRECT_PASSWORD } = require('../constants/responses');
+const { WRONG_PASSWORD } = require('../constants/responses');
+const { importFromEncryptedJson, importFromMnemonic, importFromPrivateKey } = require('../index');
 
 async function postRequest({ params, url, authToken }) {
   try {
@@ -26,7 +27,7 @@ async function validatePassword({ password, authToken }) {
   const { response, error } = await postRequest({ params: { password }, url, authToken });
 
   if (error) {
-    return { error };
+    return { error: error.data };
   }
 
   return { response };
@@ -45,11 +46,11 @@ async function generateToken({ params, authToken, scope }) {
 
     return { response: response.data.data };
   } catch (error) {
-    return { error: error.response.data.details[0] };
+    return { error: error.response.data.details };
   }
 }
 
-async function getRequest({ url, authToken, accessToken }) {
+async function getRequestWithAccessToken({ url, authToken, accessToken }) {
   try {
     const response = await axios({
       url,
@@ -60,40 +61,33 @@ async function getRequest({ url, authToken, accessToken }) {
       },
     });
 
-    return response;
+    return { response: response.data };
   } catch (error) {
     return { error };
   }
 }
 
-async function getEncryptedPKey({ password, authToken }) {
-  const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken });
+async function getRequest({ url, authToken }) {
+  try {
+    const response = await axios({
+      url,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
 
-  if (VALIDATE_PASSWORD_ERROR) {
-    return { error: VALIDATE_PASSWORD_ERROR };
+    return { response: response.data };
+  } catch (error) {
+    return { error };
   }
+}
 
-  const { error: GET_ACCESS_TOKEN_ERROR, response: accessToken } = await generateToken({
-    params: { password },
-    authToken,
-    scope: 'transaction',
-  });
+async function encryptKey({ privateKey, password }) {
+  const encryptedPrivateKey = cryptojs.AES.encrypt(privateKey, password);
+  const encryptedPrivateKeyString = encryptedPrivateKey.toString();
 
-  if (GET_ACCESS_TOKEN_ERROR) {
-    return { error: GET_ACCESS_TOKEN_ERROR };
-  }
-
-  const { data, error: GET_ENCRYPTED_PRIVATE_KEY } = await getRequest({
-    url: `${AUTH_SERVICE_URL}/auth/private-key`,
-    authToken,
-    accessToken,
-  });
-
-  if (data) {
-    return { response: data.data.encryptedPrivateKey };
-  }
-
-  return { error: GET_ENCRYPTED_PRIVATE_KEY };
+  return { response: encryptedPrivateKeyString };
 }
 
 async function decryptKey({ encryptedPrivateKey, password }) {
@@ -101,10 +95,75 @@ async function decryptKey({ encryptedPrivateKey, password }) {
   const privateKey = bytes.toString(cryptojs.enc.Utf8);
 
   if (privateKey === '') {
-    return { error: INCORRECT_PASSWORD };
+    return { error: WRONG_PASSWORD };
   }
 
   return { response: privateKey };
 }
 
-module.exports = { postRequest, getEncryptedPKey, decryptKey };
+async function updatePasswordAndPrivateKey({ password, encryptedPrivateKey, authToken }) {
+  const url = `${AUTH_SERVICE_URL}/auth/update-credentials`;
+  const { response, error } = await postRequest({ params: { password, encryptedPrivateKey }, url, authToken });
+
+  if (error) {
+    return { error };
+  }
+
+  return { response };
+}
+
+async function extractPrivateKey({
+  privateKey, seedPhrase, encryptedJson, password,
+}) {
+  if (privateKey) {
+    const { response, error } = await importFromPrivateKey(privateKey);
+
+    if (error) {
+      return { error };
+    }
+
+    return { response: { publicAddress: response.publicAddress, privateKey: response.privateKey } };
+  }
+
+  if (seedPhrase) {
+    const { error, response } = await importFromMnemonic(seedPhrase);
+
+    if (error) {
+      return { error };
+    }
+
+    return { response: response.wallet };
+  }
+
+  const { error, response } = await importFromEncryptedJson(encryptedJson, password);
+
+  if (error) {
+    return { error };
+  }
+
+  return { response: response.wallet };
+}
+
+async function verifyPublicAddress({ address, authToken }) {
+  const url = `${AUTH_SERVICE_URL}/auth/public-address/${address}`;
+
+  const { error, data } = await getRequest({ url, authToken });
+
+  if (error) {
+    return { error: error.response.data.details };
+  }
+
+  return { response: data };
+}
+
+module.exports = {
+  postRequest,
+  encryptKey,
+  decryptKey,
+  updatePasswordAndPrivateKey,
+  extractPrivateKey,
+  verifyPublicAddress,
+  validatePassword,
+  generateToken,
+  getRequestWithAccessToken,
+};
