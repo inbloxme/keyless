@@ -1,9 +1,12 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 const ethers = require('ethers');
 const Web3 = require('web3');
 const Tx = require('ethereumjs-tx').Transaction;
+const EC = require('elliptic').ec;
+const { keccak256 } = require('js-sha3');
 
-const { AUTH_SERVICE_URL, DEFAULT_GAS_LIMIT } = require('./config');
+const { DEFAULT_GAS_LIMIT } = require('./config');
 const {
   postRequest,
   encryptKey,
@@ -14,57 +17,85 @@ const {
   validatePassword,
   generateToken,
   getRequestWithAccessToken,
+  getBaseURL,
 } = require('./utils/helper');
 const {
   TRANSACTION_ERROR, INVALID_PRIVATE_KEY, WRONG_PASSWORD, INVALID_MNEMONIC, PASSWORD_MATCH_ERROR, PASSWORD_CHANGE_SUCCESS,
 } = require('./constants/responses');
 
-async function importFromEncryptedJson(jsonData, password) {
-  const json = JSON.stringify(jsonData);
-
-  try {
-    const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
+class Wallet {
+  async createWallet() {
+    const wallet = ethers.Wallet.createRandom();
 
     return {
-      response: wallet,
+      response: { wallet },
     };
-  } catch (error) {
-    return { error: WRONG_PASSWORD };
   }
-}
 
-async function importFromMnemonic(mnemonic) {
-  try {
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+  async importFromEncryptedJson(jsonData, password) {
+    const json = JSON.stringify(jsonData);
 
-    return {
-      response: wallet,
-    };
-  } catch (error) {
-    return { error: INVALID_MNEMONIC };
+    try {
+      const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
+
+      return {
+        response: wallet,
+      };
+    } catch (error) {
+      return { error: WRONG_PASSWORD };
+    }
   }
-}
 
-async function importFromPrivateKey(privateKey) {
-  try {
-    const wallet = new ethers.utils.SigningKey(privateKey);
+  async importFromMnemonic(mnemonic) {
+    try {
+      const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    return { response: { wallet } };
-  } catch (error) {
-    return { error: INVALID_PRIVATE_KEY };
+      return {
+        response: wallet,
+      };
+    } catch (error) {
+      return { error: INVALID_MNEMONIC };
+    }
+  }
+
+  async importFromPrivateKey(privateKey) {
+    try {
+      const ec = new EC('secp256k1');
+
+      const key = ec.keyFromPrivate(privateKey, 'hex');
+
+      const publicKey = key.getPublic().encode('hex').slice(2);
+
+      const address = keccak256(Buffer.from(publicKey, 'hex')).slice(64 - 40).toString();
+
+      const checksumAddress = await Web3.utils.toChecksumAddress(`0x${address}`);
+
+      return { response: { publicAddress: checksumAddress, privateKey } };
+    } catch (error) {
+      return { error: INVALID_PRIVATE_KEY };
+    }
   }
 }
 
 class Keyless {
-  constructor({ apiKey, apiSecret, infuraKey }) {
+  constructor({
+    apiKey, apiSecret, infuraKey, env,
+  }) {
     this.authToken = '';
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.infuraKey = infuraKey;
+    this.env = env;
     this.web3 = new Web3(new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/${this.infuraKey}`));
   }
 
   async getUser({ userName, password }) {
+    const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
+
+    if (ENV_ERROR) {
+      return { error: ENV_ERROR };
+    }
+
     const url = `${AUTH_SERVICE_URL}/auth/keyless-login`;
     const params = { userName, password };
 
@@ -166,10 +197,17 @@ class Keyless {
       params: { password },
       authToken: this.authToken,
       scope: 'transaction',
+      env: this.env,
     });
 
     if (GET_ACCESS_TOKEN_ERROR) {
       return { error: GET_ACCESS_TOKEN_ERROR };
+    }
+
+    const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
+
+    if (ENV_ERROR) {
+      return { error: ENV_ERROR };
     }
 
     const { response, error: GET_ENCRYPTED_PRIVATE_KEY } = await getRequestWithAccessToken({
@@ -204,6 +242,7 @@ class Keyless {
       password: newPassword,
       encryptedPrivateKey: newEncryptedPrivateKey,
       authToken: this.authToken,
+      env: this.env,
     });
 
     if (UPDATE_PASSWORD_ERROR) {
@@ -224,7 +263,7 @@ class Keyless {
       return { error: PRIVATE_KEY_ERROR };
     }
 
-    const { error: VERIFY_PUBLIC_ADDRESS_ERROR } = await verifyPublicAddress({ address: response.publicAddress, authToken: this.authToken });
+    const { error: VERIFY_PUBLIC_ADDRESS_ERROR } = await verifyPublicAddress({ address: response.publicAddress, authToken: this.authToken, env: this.env });
 
     if (VERIFY_PUBLIC_ADDRESS_ERROR) {
       return { error: VERIFY_PUBLIC_ADDRESS_ERROR };
@@ -247,5 +286,5 @@ class Keyless {
 }
 
 module.exports = {
-  Keyless, importFromEncryptedJson, importFromMnemonic, importFromPrivateKey,
+  Keyless, Wallet,
 };
