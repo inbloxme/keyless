@@ -1,49 +1,79 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 const ethers = require('ethers');
 const Web3 = require('web3');
 const Tx = require('ethereumjs-tx').Transaction;
+const EC = require('elliptic').ec;
+const { keccak256 } = require('js-sha3');
 
 const { DEFAULT_GAS_LIMIT } = require('./config');
 const {
-  postRequest, getEncryptedPKey, decryptKey, getBaseURL,
+  postRequest,
+  encryptKey,
+  decryptKey,
+  updatePasswordAndPrivateKey,
+  extractPrivateKey,
+  verifyPublicAddress,
+  validatePassword,
+  generateToken,
+  getRequestWithAccessToken,
+  getBaseURL,
 } = require('./utils/helper');
 const {
-  TRANSACTION_ERROR, WRONG_PASSWORD, INVALID_MNEMONIC, INVALID_PRIVATE_KEY,
+  TRANSACTION_ERROR, INVALID_PRIVATE_KEY, WRONG_PASSWORD, INVALID_MNEMONIC, PASSWORD_MATCH_ERROR, PASSWORD_CHANGE_SUCCESS,
 } = require('./constants/responses');
 
-async function importFromEncryptedJson(jsonData, password) {
-  const json = JSON.stringify(jsonData);
-
-  try {
-    const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
+class Wallet {
+  async createWallet() {
+    const wallet = ethers.Wallet.createRandom();
 
     return {
-      response: wallet,
+      response: { wallet },
     };
-  } catch (error) {
-    return { error: WRONG_PASSWORD };
   }
-}
 
-async function importFromMnemonic(mnemonic) {
-  try {
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+  async importFromEncryptedJson(jsonData, password) {
+    const json = JSON.stringify(jsonData);
 
-    return {
-      response: wallet,
-    };
-  } catch (error) {
-    return { error: INVALID_MNEMONIC };
+    try {
+      const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
+
+      return {
+        response: wallet,
+      };
+    } catch (error) {
+      return { error: WRONG_PASSWORD };
+    }
   }
-}
 
-async function importFromPrivateKey(privateKey) {
-  try {
-    const { address } = new ethers.utils.SigningKey(privateKey);
+  async importFromMnemonic(mnemonic) {
+    try {
+      const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    return { response: { publicAddress: address, privateKey } };
-  } catch (error) {
-    return { error: INVALID_PRIVATE_KEY };
+      return {
+        response: wallet,
+      };
+    } catch (error) {
+      return { error: INVALID_MNEMONIC };
+    }
+  }
+
+  async importFromPrivateKey(privateKey) {
+    try {
+      const ec = new EC('secp256k1');
+
+      const key = ec.keyFromPrivate(privateKey, 'hex');
+
+      const publicKey = key.getPublic().encode('hex').slice(2);
+
+      const address = keccak256(Buffer.from(publicKey, 'hex')).slice(64 - 40).toString();
+
+      const checksumAddress = await Web3.utils.toChecksumAddress(`0x${address}`);
+
+      return { response: { publicAddress: checksumAddress, privateKey } };
+    } catch (error) {
+      return { error: INVALID_PRIVATE_KEY };
+    }
   }
 }
 
@@ -72,7 +102,7 @@ class Keyless {
     const { error, response } = await postRequest({ url, params });
 
     if (error) {
-      return { error };
+      return { error: WRONG_PASSWORD };
     }
 
     const { data: { token } } = response;
@@ -85,7 +115,7 @@ class Keyless {
   async signTransaction({
     to, value, gasPrice, gasLimit, data, nonce, password,
   }) {
-    const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await getEncryptedPKey({ password, authToken: this.authToken, env: this.env });
+    const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await this.validatePasswordAndGetPKey({ password, authToken: this.authToken });
 
     if (ENCRYPTED_PKEY_ERROR) {
       return { error: ENCRYPTED_PKEY_ERROR };
@@ -155,8 +185,106 @@ class Keyless {
 
     return { response: { transactionHash: response.transactionHash } };
   }
+
+  async validatePasswordAndGetPKey({ password }) {
+    const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken: this.authToken });
+
+    if (VALIDATE_PASSWORD_ERROR) {
+      return { error: WRONG_PASSWORD };
+    }
+
+    const { error: GET_ACCESS_TOKEN_ERROR, response: accessToken } = await generateToken({
+      params: { password },
+      authToken: this.authToken,
+      scope: 'transaction',
+      env: this.env,
+    });
+
+    if (GET_ACCESS_TOKEN_ERROR) {
+      return { error: GET_ACCESS_TOKEN_ERROR };
+    }
+
+    const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
+
+    if (ENV_ERROR) {
+      return { error: ENV_ERROR };
+    }
+
+    const { response, error: GET_ENCRYPTED_PRIVATE_KEY } = await getRequestWithAccessToken({
+      url: `${AUTH_SERVICE_URL}/auth/private-key`,
+      authToken: this.authToken,
+      accessToken,
+    });
+
+    if (response) {
+      return { response: response.data.encryptedPrivateKey };
+    }
+
+    return { error: GET_ENCRYPTED_PRIVATE_KEY };
+  }
+
+  async changePassword({
+    encryptedPrivateKey, oldPassword, newPassword, confirmPassword,
+  }) {
+    if (newPassword !== confirmPassword) {
+      return { error: PASSWORD_MATCH_ERROR };
+    }
+
+    const { error: DECRYPT_KEY_ERROR, response: privateKey } = await decryptKey({ encryptedPrivateKey, password: oldPassword });
+
+    if (DECRYPT_KEY_ERROR) {
+      return { error: DECRYPT_KEY_ERROR };
+    }
+
+    const { response: newEncryptedPrivateKey } = await encryptKey({ privateKey, password: newPassword });
+
+    const { error: UPDATE_PASSWORD_ERROR } = await updatePasswordAndPrivateKey({
+      password: newPassword,
+      encryptedPrivateKey: newEncryptedPrivateKey,
+      authToken: this.authToken,
+      env: this.env,
+    });
+
+    if (UPDATE_PASSWORD_ERROR) {
+      return { error: UPDATE_PASSWORD_ERROR };
+    }
+
+    return { response: PASSWORD_CHANGE_SUCCESS };
+  }
+
+  async resetPassword({
+    privateKey, seedPhrase, encryptedJson, walletPassword, newPassword,
+  }) {
+    const { error: PRIVATE_KEY_ERROR, response } = await extractPrivateKey({
+      privateKey, seedPhrase, encryptedJson, password: walletPassword,
+    });
+
+    if (PRIVATE_KEY_ERROR) {
+      return { error: PRIVATE_KEY_ERROR };
+    }
+
+    const { error: VERIFY_PUBLIC_ADDRESS_ERROR } = await verifyPublicAddress({ address: response.publicAddress, authToken: this.authToken, env: this.env });
+
+    if (VERIFY_PUBLIC_ADDRESS_ERROR) {
+      return { error: VERIFY_PUBLIC_ADDRESS_ERROR };
+    }
+
+    const { response: newEncryptedPrivateKey } = await encryptKey({ privateKey, password: newPassword });
+
+    const { error: UPDATE_PASSWORD_ERROR } = await updatePasswordAndPrivateKey({
+      password: newPassword,
+      encryptedPrivateKey: newEncryptedPrivateKey,
+      authToken: this.authToken,
+    });
+
+    if (UPDATE_PASSWORD_ERROR) {
+      return { error: UPDATE_PASSWORD_ERROR };
+    }
+
+    return { response: PASSWORD_CHANGE_SUCCESS };
+  }
 }
 
 module.exports = {
-  Keyless, importFromEncryptedJson, importFromMnemonic, importFromPrivateKey,
+  Keyless, Wallet,
 };
