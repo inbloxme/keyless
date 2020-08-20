@@ -11,3 +11,9 @@
 ##### Pipeline Added
 
 * Added github pipelines to feature, bugfix and master branch.
+
+### 1.0.6 (2020-08-20)
+
+##### Updated return values for getUser method
+
+* getUser method now returns wallet instance along with the token.
