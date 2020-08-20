@@ -285,6 +285,5 @@ class Keyless {
   }
 }
 
-module.exports = {
-  Keyless, Wallet,
-};
+module.exports.Keyless = Keyless;
+module.exports.Wallet = Wallet;
