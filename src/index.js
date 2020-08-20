@@ -187,7 +187,7 @@ class Keyless {
   }
 
   async validatePasswordAndGetPKey({ password }) {
-    const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken: this.authToken, env:this.env });
+    const { error: VALIDATE_PASSWORD_ERROR } = await validatePassword({ password, authToken: this.authToken, env: this.env });
 
     if (VALIDATE_PASSWORD_ERROR) {
       return { error: WRONG_PASSWORD };
