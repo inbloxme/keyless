@@ -1,14 +1,12 @@
 const axios = require('axios');
 const cryptojs = require('crypto-js');
-const ethers = require('ethers');
-const Web3 = require('web3');
-const EC = require('elliptic').ec;
-const { keccak256 } = require('js-sha3');
 
 const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD } = require('../config');
 const {
-  WRONG_PASSWORD, INVALID_ENV, INVALID_MNEMONIC, INVALID_PRIVATE_KEY,
+  WRONG_PASSWORD, INVALID_ENV,
 } = require('../constants/responses');
+
+const Instance = require('../index');
 
 async function getBaseURL(env) {
   if (env === 'dev') {
@@ -140,7 +138,7 @@ async function updatePasswordAndPrivateKey({
   if (ENV_ERROR) {
     return { error: ENV_ERROR };
   }
-  const url = `${AUTH_SERVICE_URL}/auth/update-credentials`;
+  const url = `${AUTH_SERVICE_URL}/auth/update-password-pkey`;
   const { response, error } = await postRequest({ params: { password, encryptedPrivateKey }, url, authToken });
 
   if (error) {
@@ -153,52 +151,35 @@ async function updatePasswordAndPrivateKey({
 async function extractPrivateKey({
   privateKey, seedPhrase, encryptedJson, password,
 }) {
+  const wallet = new Instance.Wallet();
+
   if (privateKey) {
-    try {
-      const ec = new EC('secp256k1');
+    const { error: PRIVATE_KEY_ERROR, response } = await wallet.importFromPrivateKey(privateKey);
 
-      const key = ec.keyFromPrivate(privateKey, 'hex');
-
-      const publicKey = key.getPublic().encode('hex').slice(2);
-
-      const address = keccak256(Buffer.from(publicKey, 'hex')).slice(64 - 40).toString();
-
-      const checksumAddress = await Web3.utils.toChecksumAddress(`0x${address}`);
-
-      return { response: { publicAddress: checksumAddress, privateKey } };
-    } catch (error) {
-      return { error: INVALID_PRIVATE_KEY };
+    if (PRIVATE_KEY_ERROR) {
+      return { error: PRIVATE_KEY_ERROR };
     }
+
+    return { response };
   }
 
   if (seedPhrase) {
-    try {
-      const wallet = ethers.Wallet.fromMnemonic(seedPhrase);
-      const { privateKey: pkey, address } = wallet;
+    const { error: MNEMONIC_ERROR, response } = await wallet.importFromMnemonic(seedPhrase);
 
-      return {
-        response: {
-          publicAddress: address, privateKey: pkey,
-        },
-      };
-    } catch (error) {
-      return { error: INVALID_MNEMONIC };
+    if (MNEMONIC_ERROR) {
+      return { error: MNEMONIC_ERROR };
     }
+
+    return { response };
   }
 
-  const json = JSON.stringify(encryptedJson);
+  const { error: KEYSTORE_ERROR, response } = await wallet.importFromEncryptedJson(encryptedJson, password);
 
-  try {
-    const wallet = ethers.Wallet.fromEncryptedJson(json, password);
-
-    const { address, privateKey: pKey } = wallet;
-
-    return {
-      response: { publicAddress: address, privateKey: pKey },
-    };
-  } catch (error) {
-    return { error: WRONG_PASSWORD };
+  if (KEYSTORE_ERROR) {
+    return { error: KEYSTORE_ERROR };
   }
+
+  return { response };
 }
 
 async function verifyPublicAddress({ address, authToken, env }) {

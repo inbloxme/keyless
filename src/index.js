@@ -20,7 +20,7 @@ const {
   getBaseURL,
 } = require('./utils/helper');
 const {
-  TRANSACTION_ERROR, INVALID_PRIVATE_KEY, WRONG_PASSWORD, INVALID_MNEMONIC, PASSWORD_MATCH_ERROR, PASSWORD_CHANGE_SUCCESS,
+  INSUFFICIENT_FUNDS, INVALID_PRIVATE_KEY, WRONG_PASSWORD, INVALID_MNEMONIC, PASSWORD_MATCH_ERROR, PASSWORD_CHANGE_SUCCESS,
 } = require('./constants/responses');
 
 class Wallet {
@@ -105,11 +105,11 @@ class Keyless {
       return { error: WRONG_PASSWORD };
     }
 
-    const { data: { token } } = response;
+    const { data } = response;
 
-    this.authToken = token;
+    this.authToken = data.token;
 
-    return { response: token };
+    return { response: data };
   }
 
   async signTransaction({
@@ -156,14 +156,17 @@ class Keyless {
     return { response: signedTx };
   }
 
+  // eslint-disable-next-line consistent-return
   async sendTx({ signedTx }) {
-    const response = await this.web3.eth.sendSignedTransaction(signedTx);
+    try {
+      const response = await this.web3.eth.sendSignedTransaction(signedTx);
 
-    if (response) {
       return { response: { transactionHash: response.transactionHash } };
+    } catch (error) {
+      if (error.message === 'Returned error: insufficient funds for gas * price + value') {
+        return { error: INSUFFICIENT_FUNDS };
+      }
     }
-
-    return { error: TRANSACTION_ERROR };
   }
 
   async signAndSendTx({
@@ -285,6 +288,5 @@ class Keyless {
   }
 }
 
-module.exports = {
-  Keyless, Wallet,
-};
+module.exports.Keyless = Keyless;
+module.exports.Wallet = Wallet;
