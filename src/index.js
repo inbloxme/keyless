@@ -105,11 +105,11 @@ class Keyless {
       return { error: WRONG_PASSWORD };
     }
 
-    const { data: { token } } = response;
+    const { data } = response;
 
-    this.authToken = token;
+    this.authToken = data.token;
 
-    return { response: token };
+    return { response: data };
   }
 
   async signTransaction({
@@ -288,6 +288,5 @@ class Keyless {
   }
 }
 
-module.exports = {
-  Keyless, Wallet,
-};
+module.exports.Keyless = Keyless;
+module.exports.Wallet = Wallet;
