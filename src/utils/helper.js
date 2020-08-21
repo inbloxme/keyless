@@ -138,7 +138,7 @@ async function updatePasswordAndPrivateKey({
   if (ENV_ERROR) {
     return { error: ENV_ERROR };
   }
-  const url = `${AUTH_SERVICE_URL}/auth/update-credentials`;
+  const url = `${AUTH_SERVICE_URL}/auth/update-password-pkey`;
   const { response, error } = await postRequest({ params: { password, encryptedPrivateKey }, url, authToken });
 
   if (error) {
