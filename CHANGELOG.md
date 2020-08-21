@@ -18,9 +18,15 @@
 
 * getUser method now returns wallet instance along with the token.
 
-### 1.0.7 (2020-08-2!)
+### 1.0.7 (2020-08-21)
 
 ##### Updated the class return statements
 
 * Updated the return statements for classes
 * Implemented the methods from wallet class inside the utils to extract private key.
+
+### 1.0.7 (2020-08-21)
+
+##### Explicitly returned the private key and mnemonic from the wallet recovery methods.
+
+* Updated the wallet recovery methods to explicitly return the private key and mnemonic instead of the entire object.
