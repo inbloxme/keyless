@@ -28,7 +28,7 @@ class Wallet {
     const wallet = ethers.Wallet.createRandom();
 
     return {
-      response: { wallet },
+      response: { publicAddress: wallet.address, privateKey: wallet.privateKey, mnemonic: wallet.mnemonic },
     };
   }
 
@@ -39,7 +39,7 @@ class Wallet {
       const wallet = await ethers.Wallet.fromEncryptedJson(json, password);
 
       return {
-        response: wallet,
+        response: { publicAddress: wallet.address, privateKey: wallet.privateKey },
       };
     } catch (error) {
       return { error: WRONG_PASSWORD };
@@ -51,7 +51,7 @@ class Wallet {
       const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
       return {
-        response: wallet,
+        response: { publicAddress: wallet.address, privateKey: wallet.privateKey },
       };
     } catch (error) {
       return { error: INVALID_MNEMONIC };
