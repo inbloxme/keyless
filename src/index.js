@@ -6,9 +6,10 @@ const Tx = require('ethereumjs-tx').Transaction;
 const EC = require('elliptic').ec;
 const { keccak256 } = require('js-sha3');
 
-const { DEFAULT_GAS_LIMIT } = require('./config');
+const { DEFAULT_GAS_LIMIT, IP_INFO_API } = require('./config');
 const {
   postRequest,
+  getReq,
   encryptKey,
   decryptKey,
   updatePasswordAndPrivateKey,
@@ -163,6 +164,34 @@ class Keyless {
     try {
       const response = await this.web3.eth.sendSignedTransaction(signedTx);
 
+      const { error: IP_ERROR, response: IP_DATA } = await getReq({ url: IP_INFO_API });
+
+      const {
+        ip, loc, country, region, city,
+      } = IP_DATA;
+
+      if (IP_ERROR) {
+        return { error: IP_ERROR };
+      }
+
+      const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
+
+      if (ENV_ERROR) {
+        return { error: ENV_ERROR };
+      }
+
+      const { error: TRANSACTION_LOG_ERROR } = await postRequest({
+        url: `${AUTH_SERVICE_URL}/auth/transaction-logs`,
+        authToken: this.authToken,
+        params: {
+          transactionHash: response.transactionHash, ipAddress: ip, location: loc, country, region, city,
+        },
+      });
+
+      if (TRANSACTION_LOG_ERROR) {
+        return { error: TRANSACTION_LOG_ERROR };
+      }
+
       return { response: { transactionHash: response.transactionHash } };
     } catch (error) {
       if (error.message === 'Returned error: insufficient funds for gas * price + value') {
@@ -292,3 +321,12 @@ class Keyless {
 
 module.exports.Keyless = Keyless;
 module.exports.Wallet = Wallet;
+
+async function a() {
+  const aa = new Keyless({ env: 'dev', infuraKey: 'b3a845111c5f4e3eaf646c79bcb4d4c0' });
+  const aaa = await aa.getUser({ userName: 'arjun@inblox.me', password: 'Pass1234' });
+  const aaaa = await aa.signAndSendTx({ to: '0xf5919FC6E32Dd478725912e3715F448AaEa447c4', value: 100000000000000000, password: 'Pass1234' });
+
+  console.log(aaaa);
+}
+a();

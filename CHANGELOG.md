@@ -40,7 +40,6 @@
 ### 1.1.0 (2020-08-22)
 
 ##### Transaction and IP info logging.
-
 * Added transaction and IP info logging after successful transaction.
 
 ### 1.1.1 (2020-08-26)
@@ -48,3 +47,4 @@
 ##### Updated the error message in the getUser method.
 
 * If the user credentials entered doesn't exist or is incorrect, the error message will be displayed accordingly.
+* Added transaction and IP info logging after successful transaction.
