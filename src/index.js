@@ -103,7 +103,9 @@ class Keyless {
     const { error, response } = await postRequest({ url, params });
 
     if (error) {
-      return { error: WRONG_PASSWORD };
+      const { data: { details } } = error;
+
+      return { error: details[0].message };
     }
 
     const { data } = response;
