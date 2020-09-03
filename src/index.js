@@ -317,16 +317,23 @@ class Keyless {
 
     return { response: PASSWORD_CHANGE_SUCCESS };
   }
+
+  async convertToEth({ srcUnit, amount }) {
+    if (srcUnit === 'wei') {
+      const etherValue = Web3.utils.fromWei(amount, 'ether');
+
+      return etherValue;
+    }
+    if (srcUnit === 'gwei') {
+      const weiValue = this.web3.utils.toWei(amount, 'gwei');
+      const etherValue = this.web3.utils.fromWei(weiValue, 'ether');
+
+      return etherValue;
+    }
+
+    return 'Invalid Source Unit';
+  }
 }
 
 module.exports.Keyless = Keyless;
 module.exports.Wallet = Wallet;
-
-async function a() {
-  const aa = new Keyless({ env: 'dev', infuraKey: 'b3a845111c5f4e3eaf646c79bcb4d4c0' });
-  const aaa = await aa.getUser({ userName: 'arjun@inblox.me', password: 'Pass1234' });
-  const aaaa = await aa.signAndSendTx({ to: '0xf5919FC6E32Dd478725912e3715F448AaEa447c4', value: 100000000000000000, password: 'Pass1234' });
-
-  console.log(aaaa);
-}
-a();
