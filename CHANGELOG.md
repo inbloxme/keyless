@@ -48,3 +48,9 @@
 
 * If the user credentials entered doesn't exist or is incorrect, the error message will be displayed accordingly.
 * Added transaction and IP info logging after successful transaction.
+
+### 1.1.2 (2020-09-03)
+
+##### Added method to convert amount wei and gwei to eth.
+
+*User needs to enter source unit and amount. The method will convert the amount to eth.
