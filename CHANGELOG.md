@@ -54,3 +54,9 @@
 ##### Added method to convert amount wei and gwei to eth.
 
 *User needs to enter source unit and amount. The method will convert the amount to eth.
+
+### 1.1.3 (2020-09-08)
+
+##### Added the code for the Widget.
+
+*Added the code to enable the widget.
