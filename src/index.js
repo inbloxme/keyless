@@ -6,6 +6,8 @@ const Tx = require('ethereumjs-tx').Transaction;
 const EC = require('elliptic').ec;
 const { keccak256 } = require('js-sha3');
 
+const { Widget } = require('./widget');
+
 const { DEFAULT_GAS_LIMIT, IP_INFO_API } = require('./config');
 const {
   postRequest,
@@ -337,3 +339,4 @@ class Keyless {
 
 module.exports.Keyless = Keyless;
 module.exports.Wallet = Wallet;
+module.exports.Widget = Widget;
