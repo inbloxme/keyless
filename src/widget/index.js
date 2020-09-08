@@ -1,7 +1,5 @@
 import events from 'events';
 
-const inbloxSDK = require('../');
-
 import {
   getUserToken,
   whetherUserLoggedIn,
@@ -10,7 +8,7 @@ import {
   getActiveTabModal,
   EVENTS,
   showLoader,
-  closeModal
+  closeModal,
 } from './utils';
 
 import { loginModal, transactionDetailsConfirmation } from './pages';
@@ -22,17 +20,20 @@ import { resetPassword } from './pages/reset-password';
 import { changePasswordWithPrivateKey } from './pages/change-password/change-password';
 import { validateOldPassword } from './pages/change-password/validate-old-password';
 
+const inbloxSDK = require('..');
+
 export const eventEmitter = new events.EventEmitter();
 
 export class Widget {
   constructor() {
     // this.partnerData = partnerData;
     const token = getUserToken();
+
     this.inbloxKeyless = new inbloxSDK.Keyless({
-      infuraKey: `7484a12fa3b544f79bf51ef44edd6db5`,
-      env: 'dev'
+      infuraKey: '7484a12fa3b544f79bf51ef44edd6db5',
+      env: 'dev',
     });
-    this.inbloxKeyless.authToken = token ? token : '';
+    this.inbloxKeyless.authToken = token || '';
     this.handleName = '';
     this.publicAddress = '';
     this.signedTransaction = '';
@@ -54,17 +55,17 @@ export class Widget {
   getUserData() {
     if (this.isUserLoggedIn) {
       return { publicAddress: this.publicAddress, handleName: this.handleName };
-    } else {
-      return { error: 'User not logged in' };
     }
+
+    return { error: 'User not logged in' };
   }
 
   getSignedData() {
     if (this.isUserLoggedIn && this.signedTransaction != '') {
       return { signedTransaction: this.signedTransaction };
-    } else {
-      return { error: 'User not logged in or not signed transaction' };
     }
+
+    return { error: 'User not logged in or not signed transaction' };
   }
 
   initLogin() {
@@ -76,14 +77,19 @@ export class Widget {
     }
   }
 
-  initSignTransaction({ to, value, gasPrice, gasLimit, data }) {
+  initSignTransaction({
+    to, value, gasPrice, gasLimit, data,
+  }) {
     this.initMethod = 'sign-transaction';
-    this.transactionData = { to, value, gasPrice, gasLimit, data };
+    this.transactionData = {
+      to, value, gasPrice, gasLimit, data,
+    };
     getAuthTab(
       this,
-      () =>
-        transactionDetailsConfirmation({ to, value, gasPrice, gasLimit, data }),
-      'transaction-details-confirmation'
+      () => transactionDetailsConfirmation({
+        to, value, gasPrice, gasLimit, data,
+      }),
+      'transaction-details-confirmation',
     );
 
     try {
@@ -93,14 +99,19 @@ export class Widget {
     }
   }
 
-  initSendTransaction({ to, value, gasPrice, gasLimit, data }) {
+  initSendTransaction({
+    to, value, gasPrice, gasLimit, data,
+  }) {
     this.initMethod = 'sign-and-send-transaction';
-    this.transactionData = { to, value, gasPrice, gasLimit, data };
+    this.transactionData = {
+      to, value, gasPrice, gasLimit, data,
+    };
     getAuthTab(
       this,
-      () =>
-        transactionDetailsConfirmation({ to, value, gasPrice, gasLimit, data }),
-      'transaction-details-confirmation'
+      () => transactionDetailsConfirmation({
+        to, value, gasPrice, gasLimit, data,
+      }),
+      'transaction-details-confirmation',
     );
 
     try {
@@ -113,8 +124,8 @@ export class Widget {
   initOnClickEvents() {
     // Onclick handler for Login modal.
     if (this.activeTabIdName == 'login') {
-      var forgetPassword = document.getElementById('forgot-password-link');
-      var loginButton = document.getElementById('login-button');
+      const forgetPassword = document.getElementById('forgot-password-link');
+      const loginButton = document.getElementById('login-button');
 
       forgetPassword.onclick = () => {
         this.setActiveTab('reset-password');
@@ -131,9 +142,11 @@ export class Widget {
         if (emailPresent && passwordPresent) {
           document.getElementById('error-message').style.display = 'none';
           showLoader();
-          var userLoggedIn = await login(this.inbloxKeyless);
+          const userLoggedIn = await login(this.inbloxKeyless);
+
           if (userLoggedIn.status == true) {
-            var userData = userLoggedIn.data;
+            const userData = userLoggedIn.data;
+
             this.isUserLoggedIn = userLoggedIn.status;
             this.handleName = userData.handleName;
             this.publicAddress = userData.publicAddress;
@@ -143,8 +156,8 @@ export class Widget {
               eventName: this.EVENTS.LOGIN_SUCCESS,
               data: {
                 handleName: userData.handleName,
-                publicAddress: userData.publicAddress
-              }
+                publicAddress: userData.publicAddress,
+              },
             });
             closeModal(this.initMethod);
           } else {
@@ -152,13 +165,12 @@ export class Widget {
               status: false,
               eventName: this.EVENTS.LOGIN_FAILURE,
               data: {
-                message: 'Either username or password is not valid'
-              }
+                message: 'Either username or password is not valid',
+              },
             });
           }
         } else {
-          document.getElementById('error-message').innerHTML =
-            'Please enter email & password';
+          document.getElementById('error-message').innerHTML = 'Please enter email & password';
           document.getElementById('error-message').style.display = 'block';
         }
       };
@@ -166,7 +178,7 @@ export class Widget {
 
     // Onclick handler for transaction confirm modal.
     if (this.activeTabIdName == 'message-handler-modal') {
-      var okButton = document.getElementById('ok-button');
+      const okButton = document.getElementById('ok-button');
 
       okButton.onclick = () => {
         closeModal(this.initMethod);
@@ -175,13 +187,13 @@ export class Widget {
 
     // Onclick handler for transaction confirm modal.
     if (this.activeTabIdName == 'transaction-details-confirmation') {
-      var transctionConfirmButton = document.getElementById(
-        'transaction-confirm-button'
+      const transctionConfirmButton = document.getElementById(
+        'transaction-confirm-button',
       );
 
       transctionConfirmButton.onclick = () => {
         this.setActiveTab(this.initMethod, {
-          currentUser: this.isUserLoggedIn
+          currentUser: this.isUserLoggedIn,
         });
       };
     }
@@ -194,7 +206,7 @@ export class Widget {
         showLoader();
         const signedTx = await signTransaction(
           this.inbloxKeyless,
-          this.transactionData
+          this.transactionData,
         );
 
         if (signedTx.status) {
@@ -203,16 +215,16 @@ export class Widget {
             status: true,
             eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
             data: {
-              transactionHash: signedTx.hash
-            }
+              transactionHash: signedTx.hash,
+            },
           });
         } else {
           eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
             status: true,
             eventName: this.EVENTS.TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed'
-            }
+              message: 'Transaction failed',
+            },
           });
         }
       };
@@ -221,15 +233,15 @@ export class Widget {
     // Onclick handler for Sign & send transaction modal.
     if (this.activeTabIdName == 'sign-and-send-transaction') {
       const backFromSignAndSendTranx = document.getElementById(
-        'back-arrow-icon'
+        'back-arrow-icon',
       );
       const signAndSendTranxButton = document.getElementById(
-        'sign-and-send-tranx-button'
+        'sign-and-send-tranx-button',
       );
 
       backFromSignAndSendTranx.onclick = () => {
         this.setActiveTab('transaction-details-confirmation', {
-          signedTransaction: this.transactionData
+          signedTransaction: this.transactionData,
         });
       };
 
@@ -237,7 +249,7 @@ export class Widget {
         showLoader();
         const sentAndSignedTranx = await signAndSendTransaction(
           this.inbloxKeyless,
-          this.transactionData
+          this.transactionData,
         );
 
         if (sentAndSignedTranx.status == true) {
@@ -245,20 +257,20 @@ export class Widget {
             status: true,
             eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
             data: {
-              transactionHash: sentAndSignedTranx.hash
-            }
+              transactionHash: sentAndSignedTranx.hash,
+            },
           });
           this.setActiveTab('message-handler-modal', {
             message: 'Transaction Successful',
-            transactionHash: sentAndSignedTranx.hash
+            transactionHash: sentAndSignedTranx.hash,
           });
         } else {
           eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
             status: true,
             eventName: this.EVENTS.TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed'
-            }
+              message: 'Transaction failed',
+            },
           });
         }
       };
@@ -266,11 +278,11 @@ export class Widget {
 
     // Onclick handler for Forgot password modal.
     if (this.activeTabIdName == 'forgot-password') {
-      var changePasswordButton = document.getElementById(
-        'change-password-button'
+      const changePasswordButton = document.getElementById(
+        'change-password-button',
       );
-      var resetPasswordButton = document.getElementById(
-        'reset-password-button'
+      const resetPasswordButton = document.getElementById(
+        'reset-password-button',
       );
 
       changePasswordButton.onclick = () => {
@@ -284,15 +296,16 @@ export class Widget {
 
     // Onclick handler for change password modal.
     if (this.activeTabIdName == 'validate-old-password') {
-      var validateOldPasswordButton = document.getElementById(
-        'validate-old-password-button'
+      const validateOldPasswordButton = document.getElementById(
+        'validate-old-password-button',
       );
 
       validateOldPasswordButton.onclick = async () => {
         showLoader();
         const validateOldPassRes = await validateOldPassword(
-          this.inbloxKeyless
+          this.inbloxKeyless,
         );
+
         if (validateOldPassRes.status === true) {
           this.privatKey = validateOldPassRes.privatKey;
           this.oldPassword = validateOldPassRes.oldPassword;
@@ -303,8 +316,8 @@ export class Widget {
 
     // Onclick handler for change password modal.
     if (this.activeTabIdName == 'change-password') {
-      var submitChangedPasswordButton = document.getElementById(
-        'submit-changed-password'
+      const submitChangedPasswordButton = document.getElementById(
+        'submit-changed-password',
       );
 
       submitChangedPasswordButton.onclick = async () => {
@@ -312,8 +325,9 @@ export class Widget {
         const changedPassword = await changePasswordWithPrivateKey(
           this.inbloxKeyless,
           this.privatKey,
-          this.oldPassword
+          this.oldPassword,
         );
+
         if (changedPassword === true) {
           this.setActiveTab('change-password-success');
         } else if (changedPassword === false) {
@@ -324,7 +338,7 @@ export class Widget {
 
     // Onclick handler for change password success modal.
     if (this.activeTabIdName == 'change-password-success') {
-      var signInButton = document.getElementById('sign-in-button');
+      const signInButton = document.getElementById('sign-in-button');
 
       signInButton.onclick = async () => {
         this.setActiveTab('login', { currentUser: true });
@@ -333,7 +347,7 @@ export class Widget {
 
     // Onclick handler for change password failure modal.
     if (this.activeTabIdName == 'change-password-failure') {
-      var retryButton = document.getElementById('retry-change-password');
+      const retryButton = document.getElementById('retry-change-password');
 
       retryButton.onclick = async () => {
         this.setActiveTab('change-password');
@@ -342,12 +356,13 @@ export class Widget {
 
     // Onclick handler for reset password modal.
     if (this.activeTabIdName == 'reset-password') {
-      var selectResetButton = document.getElementById('reset-option-selected');
+      const selectResetButton = document.getElementById('reset-option-selected');
 
       selectResetButton.onclick = () => {
-        var resetPasswordOption = document.querySelector(
-          'input[name="reset-password-by"]:checked'
+        const resetPasswordOption = document.querySelector(
+          'input[name="reset-password-by"]:checked',
         ).value;
+
         this.setActiveTab(resetPasswordOption);
       };
     }
@@ -357,19 +372,21 @@ export class Widget {
       const submitSeedButton = document.getElementById('submit-seed');
 
       submitSeedButton.onclick = async () => {
-        var seedPhrases = [];
+        const seedPhrases = [];
+
         for (let i = 1; i < 12; i++) {
           seedPhrases.push(
-            document.querySelector(`input[name="seed-${i}"]`).value
+            document.querySelector(`input[name="seed-${i}"]`).value,
           );
         }
-        var resetOptions = {
-          seedPhrase: seedPhrases.join(' ')
+        const resetOptions = {
+          seedPhrase: seedPhrases.join(' '),
         };
+
         showLoader();
-        var resetPassswordResponse = await resetPassword(
+        const resetPassswordResponse = await resetPassword(
           this.inbloxKeyless,
-          resetOptions
+          resetOptions,
         );
 
         if (resetPassswordResponse == true) {
@@ -381,18 +398,19 @@ export class Widget {
     // Onclick handler for reset password using private key.
     if (this.activeTabIdName == 'reset-password-private-key') {
       const submitPrivateKeyButton = document.getElementById(
-        'submit-private-key'
+        'submit-private-key',
       );
 
       submitPrivateKeyButton.onclick = async () => {
-        var privatKey = document.getElementById('private-key').value;
-        var resetOptions = {
-          privateKey: privatKey
+        const privatKey = document.getElementById('private-key').value;
+        const resetOptions = {
+          privateKey: privatKey,
         };
+
         showLoader();
-        var resetPassswordResponse = await resetPassword(
+        const resetPassswordResponse = await resetPassword(
           this.inbloxKeyless,
-          resetOptions
+          resetOptions,
         );
 
         if (resetPassswordResponse == true) {
@@ -403,21 +421,20 @@ export class Widget {
 
     // Onclick handler for reset password using key store.
     if (this.activeTabIdName == 'reset-password-upload-key-store') {
-      var keyStoreFile = document.getElementById('key-store-file');
+      const keyStoreFile = document.getElementById('key-store-file');
+
       keyStoreFile.onchange = async () => {
         const updateEncryptedJsonAndProceed = (encryptedJson) => {
-          document.getElementById('show-uploading-message').style.display =
-            'none';
-          document.getElementById('show-uploaded-message').style.display =
-            'block';
+          document.getElementById('show-uploading-message').style.display = 'none';
+          document.getElementById('show-uploaded-message').style.display = 'block';
           this.encryptedJson = encryptedJson;
           this.setActiveTab('reset-password-phrase');
         };
 
-        document.getElementById('show-uploading-message').style.display =
-          'block';
-        var file = keyStoreFile.files[0];
-        var fileread = new FileReader();
+        document.getElementById('show-uploading-message').style.display = 'block';
+        const file = keyStoreFile.files[0];
+        const fileread = new FileReader();
+
         fileread.onload = function (e) {
           updateEncryptedJsonAndProceed(JSON.parse(e.target.result));
         };
@@ -430,15 +447,16 @@ export class Widget {
       const submitKeyStoreButton = document.getElementById('submit-key-store');
 
       submitKeyStoreButton.onclick = async () => {
-        var walletPassword = document.getElementById('key-store-phrase').value;
-        var resetOptions = {
+        const walletPassword = document.getElementById('key-store-phrase').value;
+        const resetOptions = {
           encryptedJson: this.encryptedJson,
-          walletPassword: walletPassword
+          walletPassword,
         };
+
         showLoader();
-        var resetPassswordResponse = await resetPassword(
+        const resetPassswordResponse = await resetPassword(
           this.inbloxKeyless,
-          resetOptions
+          resetOptions,
         );
 
         if (resetPassswordResponse == true) {
@@ -457,7 +475,7 @@ export class Widget {
 
 Widget.prototype.on = function (type, cb) {
   if (type === this.ALL_EVENTS) {
-    for (let eventName in EVENTS) {
+    for (const eventName in EVENTS) {
       eventEmitter.on(EVENTS[eventName], cb);
     }
   }
