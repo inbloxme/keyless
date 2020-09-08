@@ -59,4 +59,4 @@
 
 ##### Added the Widget.
 
-*Added the widget for keyless transaction signing.
+*Added the widget for keyless transaction signing
