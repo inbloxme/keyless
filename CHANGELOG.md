@@ -66,3 +66,9 @@
 ##### Changed Credentials to test environment.
 
 *Changed credentials to test environment
+
+### 1.1.5 (2020-09-09)
+
+##### Fixed the punctuation error.
+
+*Fixed the punctuation error.
