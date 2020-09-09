@@ -60,3 +60,9 @@
 ##### Added the Widget.
 
 *Added the widget for keyless transaction signing
+
+### 1.1.4 (2020-09-09)
+
+##### Changed Credentials to test environment.
+
+*Changed credentials to test environment
