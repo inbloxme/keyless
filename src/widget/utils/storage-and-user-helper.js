@@ -10,7 +10,7 @@ export function getUserToken() {
 }
 
 export function whetherUserLoggedIn(keylessToken) {
-  return keylessToken || getUserToken() ? true : false;
+  return !!(keylessToken || getUserToken());
 }
 
 export function getAuthTab(widgetInstance, protectedModule, protectedModuleId) {

@@ -35,5 +35,5 @@ export {
   resetPasswordUploadKeyStore,
   transactionDetailsConfirmation,
   resetPasswordSuccessful,
-  messageHandlerModal
+  messageHandlerModal,
 };

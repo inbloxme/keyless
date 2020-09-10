@@ -2,7 +2,7 @@ import {
   inbloxWidgetIcon,
   closeIcon,
   backIcon,
-  inbloxMe
+  inbloxMe,
 } from '../../assets/images';
 
 import { loader } from '../loader';
@@ -12,8 +12,8 @@ import { hideLoader } from '../../utils/ui-helper';
 export function signAndSendTransactionModal(currentUser) {
   return `
   <div class="widget-modal-content ${
-    currentUser ? 'active' : ''
-  }" id="sign-and-send-transaction">
+  currentUser ? 'active' : ''
+}" id="sign-and-send-transaction">
     ${loader()}
     <div class="widget-modal-header">
       <div id="back-arrow-icon">
@@ -32,7 +32,7 @@ export function signAndSendTransactionModal(currentUser) {
     <div class="widget-modal-form">
       <div class="widget-modal-input">
         <label>Enter Password</label>
-        <input type="password" id="sign-tranx-user-password" class="lg">
+        <input type="password" id="sign-tranx-user-password">
       </div>
       <div class="widget-modal-input">
         <span id="error-message"></span>
@@ -64,9 +64,7 @@ export function signAndSendTransactionModal(currentUser) {
 export async function signAndSendTransaction(keylessInstance, transactionData) {
   const userPassword = document.getElementById('sign-tranx-user-password')
     .value;
-  const tranxDetails = Object.assign({}, transactionData, {
-    password: userPassword
-  });
+  const tranxDetails = { ...transactionData, password: userPassword };
 
   const tranxResponse = await keylessInstance.signAndSendTx(tranxDetails);
 
@@ -74,9 +72,11 @@ export async function signAndSendTransaction(keylessInstance, transactionData) {
   if (tranxResponse.error) {
     document.getElementById('error-message').innerHTML = tranxResponse.error;
     document.getElementById('error-message').style.display = 'block';
+
     return { status: false };
-  } else if (tranxResponse.response) {
+  } if (tranxResponse.response) {
     document.getElementById('error-message').style.display = 'none';
+
     return { status: true, hash: tranxResponse.response.transactionHash };
   }
 }

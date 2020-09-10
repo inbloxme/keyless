@@ -76,21 +76,24 @@ export async function login(keylessInstance) {
 
   const userDetails = {
     userName: userEmail,
-    password: userPassword
+    password: userPassword,
   };
 
   // Using Keyless instance methods.
-  var loginResponse = await keylessInstance.getUser(userDetails);
+  const loginResponse = await keylessInstance.getUser(userDetails);
+
   hideLoader();
   if (loginResponse.error) {
     document.getElementById('error-message').innerHTML = loginResponse.error;
     document.getElementById('error-message').style.display = 'block';
+
     return { status: false };
-  } else if (loginResponse.response) {
+  } if (loginResponse.response) {
     document.getElementById('error-message').style.display = 'none';
     if (rememberMe) {
       setUserToken(loginResponse.response.token);
     }
+
     return { status: true, data: loginResponse.response };
   }
 }

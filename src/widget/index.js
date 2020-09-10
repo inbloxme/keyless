@@ -51,6 +51,7 @@ export class Widget {
     this.EVENTS = EVENTS;
     this.ALL_EVENTS = '*';
     this.ERROR = 'KEYLESS_ERROR';
+    this.INITIALISED_EVENTS = [];
   }
 
   getUserData() {
@@ -69,8 +70,17 @@ export class Widget {
     return { error: 'User not logged in or not signed transaction' };
   }
 
+  getGasFeeAndValue(feeDetails, valueDetails) {
+    return this.inbloxKeyless.convertToEth(feeDetails).then((gasFee) => this.inbloxKeyless
+      .convertToEth(valueDetails)
+      .then((valueInEth) => ({ gasFee, valueInEth })));
+  }
+
   initLogin() {
     this.initMethod = 'login';
+    this.activeTabIdName = 'login';
+    this.activeTab = loginModal();
+
     try {
       generateModal(this);
     } catch (error) {
@@ -82,43 +92,80 @@ export class Widget {
     to, value, gasPrice, gasLimit, data,
   }) {
     this.initMethod = 'sign-transaction';
-    this.transactionData = {
-      to, value, gasPrice, gasLimit, data,
+    const fee = gasPrice * gasLimit;
+    const feeDetails = {
+      srcUnit: 'wei',
+      amount: fee.toString(),
     };
-    getAuthTab(
-      this,
-      () => transactionDetailsConfirmation({
-        to, value, gasPrice, gasLimit, data,
-      }), 'transaction-details-confirmation'
-    );
+    const valueDetails = {
+      srcUnit: 'wei',
+      amount: value.toString(),
+    };
 
-    try {
-      generateModal(this);
-    } catch (error) {
-      throw error;
-    }
+    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
+      const { gasFee } = res;
+      const { valueInEth } = res;
+
+      this.transactionData = {
+        to,
+        valueInEth,
+        value,
+        gasPrice,
+        gasLimit,
+        data,
+        gasFee,
+      };
+
+      getAuthTab(
+        this,
+        () => transactionDetailsConfirmation(this.transactionData), 'transaction-details-confirmation'
+      );
+
+      try {
+        generateModal(this);
+      } catch (error) {
+        throw error;
+      }
+    });
   }
 
   initSendTransaction({
     to, value, gasPrice, gasLimit, data,
   }) {
     this.initMethod = 'sign-and-send-transaction';
-    this.transactionData = {
-      to, value, gasPrice, gasLimit, data,
+    const fee = gasPrice * gasLimit;
+    const feeDetails = {
+      srcUnit: 'wei',
+      amount: fee.toString(),
     };
-    getAuthTab(
-      this,
-      () => transactionDetailsConfirmation({
-        to, value, gasPrice, gasLimit, data,
-      }),
-      'transaction-details-confirmation'
-    );
+    const valueDetails = {
+      srcUnit: 'wei',
+      amount: value.toString(),
+    };
 
-    try {
-      generateModal(this);
-    } catch (error) {
-      throw error;
-    }
+    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
+      const { gasFee } = res;
+      const { valueInEth } = res;
+
+      this.transactionData = {
+        to,
+        valueInEth,
+        value,
+        gasPrice,
+        gasLimit,
+        data,
+        gasFee,
+      };
+      getAuthTab(
+        this, () => transactionDetailsConfirmation(this.transactionData), 'transaction-details-confirmation'
+      );
+
+      try {
+        generateModal(this);
+      } catch (error) {
+        throw error;
+      }
+    });
   }
 
   initOnClickEvents() {
@@ -187,9 +234,7 @@ export class Widget {
 
     // Onclick handler for transaction confirm modal.
     if (this.activeTabIdName === 'transaction-details-confirmation') {
-      const transctionConfirmButton = document.getElementById(
-        'transaction-confirm-button'
-      );
+      const transctionConfirmButton = document.getElementById('transaction-confirm-button');
 
       transctionConfirmButton.onclick = () => {
         this.setActiveTab(this.initMethod, {
@@ -204,10 +249,7 @@ export class Widget {
 
       signTranxButton.onclick = async () => {
         showLoader();
-        const signedTx = await signTransaction(
-          this.inbloxKeyless,
-          this.transactionData
-        );
+        const signedTx = await signTransaction(this.inbloxKeyless, this.transactionData);
 
         if (signedTx.status) {
           this.signedTransaction = signedTx.hash;
@@ -232,12 +274,8 @@ export class Widget {
 
     // Onclick handler for Sign & send transaction modal.
     if (this.activeTabIdName === 'sign-and-send-transaction') {
-      const backFromSignAndSendTranx = document.getElementById(
-        'back-arrow-icon'
-      );
-      const signAndSendTranxButton = document.getElementById(
-        'sign-and-send-tranx-button'
-      );
+      const backFromSignAndSendTranx = document.getElementById('back-arrow-icon');
+      const signAndSendTranxButton = document.getElementById('sign-and-send-tranx-button');
 
       backFromSignAndSendTranx.onclick = () => {
         this.setActiveTab('transaction-details-confirmation', {
@@ -247,10 +285,7 @@ export class Widget {
 
       signAndSendTranxButton.onclick = async () => {
         showLoader();
-        const sentAndSignedTranx = await signAndSendTransaction(
-          this.inbloxKeyless,
-          this.transactionData
-        );
+        const sentAndSignedTranx = await signAndSendTransaction(this.inbloxKeyless, this.transactionData);
 
         if (sentAndSignedTranx.status === true) {
           eventEmitter.emit(this.EVENTS.TRANSACTION_SUCCESSFUL, {
@@ -372,10 +407,7 @@ export class Widget {
         };
 
         showLoader();
-        const resetPassswordResponse = await resetPassword(
-          this.inbloxKeyless,
-          resetOptions
-        );
+        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
 
         if (resetPassswordResponse === true) {
           this.setActiveTab('reset-password-success');
@@ -394,10 +426,7 @@ export class Widget {
         };
 
         showLoader();
-        const resetPassswordResponse = await resetPassword(
-          this.inbloxKeyless,
-          resetOptions
-        );
+        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
 
         if (resetPassswordResponse === true) {
           this.setActiveTab('reset-password-success');
@@ -440,10 +469,7 @@ export class Widget {
         };
 
         showLoader();
-        const resetPassswordResponse = await resetPassword(
-          this.inbloxKeyless,
-          resetOptions
-        );
+        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
 
         if (resetPassswordResponse === true) {
           this.setActiveTab('reset-password-success');
@@ -461,15 +487,23 @@ export class Widget {
 
 Widget.prototype.on = function (type, cb) {
   if (type === this.ALL_EVENTS) {
-    for (const eventName in EVENTS) {
-      eventEmitter.on(EVENTS[eventName], cb);
+    for (const evKey in EVENTS) {
+      const evName = EVENTS[evKey];
+
+      if (!this.INITIALISED_EVENTS.includes(evName)) {
+        this.INITIALISED_EVENTS.push(evName);
+        eventEmitter.on(evName, cb);
+      }
     }
   }
 
-  if (EVENTS[type]) {
+  if (EVENTS[type] && !this.INITIALISED_EVENTS.includes(EVENTS[type])) {
+    this.INITIALISED_EVENTS.push(EVENTS[type]);
     eventEmitter.on(type, cb);
   }
-  if (type === this.ERROR) {
+
+  if (type === this.ERROR && !this.INITIALISED_EVENTS.includes(this.ERROR)) {
+    this.INITIALISED_EVENTS.push(this.ERROR);
     eventEmitter.on(this.ERROR, cb);
   }
 };

@@ -43,20 +43,21 @@ export function validateOldPasswordModal() {
 export async function validateOldPassword(keylessInstance) {
   const oldPassword = document.getElementById('old-password').value;
   const validateResponse = await keylessInstance.validatePasswordAndGetPKey({
-    password: oldPassword
+    password: oldPassword,
   });
 
   if (validateResponse.error) {
     hideLoader();
     document.getElementById('error-message').innerHTML = validateResponse.error;
     document.getElementById('error-message').style.display = 'block';
+
     return { status: false };
-  } else {
-    document.getElementById('error-message').style.display = 'none';
-    return {
-      status: true,
-      privateKey: validateResponse.response,
-      oldPassword: oldPassword
-    };
   }
+  document.getElementById('error-message').style.display = 'none';
+
+  return {
+    status: true,
+    privateKey: validateResponse.response,
+    oldPassword,
+  };
 }

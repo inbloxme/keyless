@@ -7,8 +7,8 @@ import { hideLoader } from '../../utils/ui-helper';
 export function signTransactionModal(currentUser) {
   return `
   <div class="widget-modal-content ${
-    currentUser ? 'active' : ''
-  }" id="sign-transaction">
+  currentUser ? 'active' : ''
+}" id="sign-transaction">
     ${loader()}
     <div class="widget-modal-header">
       ${inbloxWidgetIcon}
@@ -50,19 +50,19 @@ export function signTransactionModal(currentUser) {
 export async function signTransaction(keylessInstance, transactionData) {
   const userPassword = document.getElementById('sign-tranx-user-password')
     .value;
-  const tranxDetails = Object.assign({}, transactionData, {
-    password: userPassword
-  });
+  const tranxDetails = { ...transactionData, password: userPassword };
 
   const signTranxResponse = await keylessInstance.signTransaction(tranxDetails);
+
   hideLoader();
   if (signTranxResponse.error) {
-    document.getElementById('error-message').innerHTML =
-      signTranxResponse.error;
+    document.getElementById('error-message').innerHTML = signTranxResponse.error;
     document.getElementById('error-message').style.display = 'block';
+
     return { status: false };
-  } else if (signTranxResponse.response) {
+  } if (signTranxResponse.response) {
     document.getElementById('error-message').style.display = 'none';
+
     return { status: true, hash: signTranxResponse.response };
   }
 }

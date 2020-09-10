@@ -1,7 +1,7 @@
 import {
   inbloxWidgetIcon,
   uploadFileIcon,
-  inbloxMe
+  inbloxMe,
 } from '../../assets/images';
 
 import { loader } from '../loader';

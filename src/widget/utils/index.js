@@ -2,7 +2,7 @@ import {
   setUserToken,
   whetherUserLoggedIn,
   getAuthTab,
-  getUserToken
+  getUserToken,
 } from './storage-and-user-helper';
 
 import {
@@ -10,7 +10,7 @@ import {
   getActiveTabModal,
   showLoader,
   hideLoader,
-  closeModal
+  closeModal,
 } from './ui-helper';
 
 export { default as EVENTS } from './events';
@@ -24,5 +24,5 @@ export {
   getActiveTabModal,
   showLoader,
   hideLoader,
-  closeModal
+  closeModal,
 };
