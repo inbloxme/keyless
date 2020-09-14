@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 // Widget ui helpers.
 import { exportCss } from '../assets/css';
 import {
@@ -17,39 +18,40 @@ import {
   resetPasswordSuccessful,
   validateOldPasswordModal,
   transactionDetailsConfirmation,
-  messageHandlerModal
+  messageHandlerModal,
 } from '../pages';
 
 import { eventEmitter } from '..';
 
 export function getActiveTabModal(activeId, options) {
-  var activeTabModal = '';
+  let activeTabModal = '';
+
   switch (activeId) {
     case 'login':
       activeTabModal = loginModal();
       break;
     case 'message-handler-modal':
       activeTabModal = messageHandlerModal(
-        options['message'],
-        options['transactionHash']
+        options.message,
+        options.transactionHash
       );
       break;
     case 'forgot-password':
       activeTabModal = forgotPassword();
       break;
     case 'sign-transaction':
-      activeTabModal = signTransactionModal(options['currentUser']);
+      activeTabModal = signTransactionModal(options.currentUser);
       break;
     case 'sign-and-send-transaction':
-      activeTabModal = signAndSendTransactionModal(options['currentUser']);
+      activeTabModal = signAndSendTransactionModal(options.currentUser);
       break;
     case 'transaction-details-confirmation':
       activeTabModal = transactionDetailsConfirmation(
-        options['signedTransaction']
+        options.transactionData
       );
       break;
     case 'transaction-success':
-      activeTabModal = transactionSuccess(options['transactionHash']);
+      activeTabModal = transactionSuccess(options.transactionHash);
       break;
     case 'validate-old-password':
       activeTabModal = validateOldPasswordModal();
@@ -84,11 +86,13 @@ export function getActiveTabModal(activeId, options) {
     default:
       activeTabModal = loginModal();
   }
+
   return activeTabModal;
 }
 
 export async function generateModal(widgetInstance) {
   let wrapper = document.getElementById('inbloxKeylessWidget');
+
   if (wrapper == null) {
     wrapper = document.createElement('div');
     wrapper.id = 'inbloxKeylessWidget';
@@ -96,17 +100,19 @@ export async function generateModal(widgetInstance) {
   wrapper.innerHTML = `${widgetInstance.activeTab}`;
 
   let container = document.getElementsByTagName('body');
+
   if (!container) container = document.getElementsByTagName('html');
   if (!container) container = document.getElementsByTagName('div');
   await container[0].appendChild(wrapper);
 
-  let inbloxKeylessWidget = document.getElementById('inbloxKeylessWidget');
+  const inbloxKeylessWidget = document.getElementById('inbloxKeylessWidget');
 
-  let style = await document.createElement('style');
+  const style = await document.createElement('style');
+
   style.innerHTML = exportCss();
   if (inbloxKeylessWidget) await inbloxKeylessWidget.appendChild(style);
 
-  //Prevent background scrolling when overlay appears
+  // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'hidden';
   document.body.scroll = 'no';
 
@@ -118,7 +124,7 @@ export async function generateModal(widgetInstance) {
     widgetInstance.isInitialised = true;
     eventEmitter.emit(widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED, {
       status: true,
-      eventName: widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED
+      eventName: widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED,
     });
   }
 
@@ -128,16 +134,18 @@ export async function generateModal(widgetInstance) {
 
 export function showLoader() {
   const loader = document.getElementById('loader');
+
   loader.style.display = 'block';
 }
 
 export function hideLoader() {
   const loader = document.getElementById('loader');
+
   loader.style.display = 'none';
 }
 
 export function closeModal(initMethod = 'useractivity') {
-  //Prevent background scrolling when overlay appears
+  // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'auto';
   document.body.scroll = 'yes';
   document.getElementById('inbloxKeylessWidget').remove();
@@ -145,16 +153,17 @@ export function closeModal(initMethod = 'useractivity') {
   eventEmitter.emit('KEYLESS_WIDGET_CLOSED', {
     status: true,
     eventName: 'KEYLESS_WIDGET_CLOSED',
-    initMethod: initMethod,
+    initMethod,
     data: {
-      message: 'Keyless widget closed'
-    }
+      message: 'Keyless widget closed',
+    },
   });
 }
 
 function initCloseEvents() {
   const closeIcon = document.getElementById('close-icon');
   // When the user clicks on close icon (x), close the modal
+
   closeIcon.onclick = () => {
     closeModal();
   };
@@ -162,6 +171,7 @@ function initCloseEvents() {
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = (event) => {
     const customModal = document.getElementById('inbloxKeylessWidget');
+
     if (customModal && event.target === customModal) {
       closeModal();
     }

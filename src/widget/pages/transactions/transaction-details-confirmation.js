@@ -1,5 +1,3 @@
-const web3 = require('web3');
-
 import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../../assets/images';
 
 export function transactionDetailsConfirmation(transactionData) {
@@ -18,14 +16,11 @@ export function transactionDetailsConfirmation(transactionData) {
       </p>
       <p>
         <label>Value : </label>
-        <span>${hexToNumberString(transactionData.value) || '-'}</span>
+        <span>${transactionData.valueInEth || '-'} ETH</span>
       </p>
       <p>
-        <label>Gas Free : </label>
-        <span>${
-          calculateGasFee(transactionData.gasPrice, transactionData.gasLimit) ||
-          '-'
-        }</span>
+        <label>Gas Fee : </label>
+        <span>${transactionData.gasFee || '-'} ETH</span>
       </p>
     </div>
     <div class="widget-modal-button">
@@ -48,16 +43,4 @@ export function transactionDetailsConfirmation(transactionData) {
       </button>
     </div>
   </div>`;
-}
-
-function calculateGasFee(price, limit) {
-  const fee = price * limit;
-  const weiQuantity = web3.utils.toWei(fee.toString(), 'gwei');
-  const etherQuantity = web3.utils.fromWei(weiQuantity, 'ether');
-
-  return etherQuantity;
-}
-
-function hexToNumberString(hexa) {
-  return web3.utils.hexToNumberString(hexa);
 }

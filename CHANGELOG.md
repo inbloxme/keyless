@@ -72,3 +72,11 @@
 ##### Fixed the punctuation error.
 
 *Fixed the punctuation error.
+
+### 1.1.6 (2020-09-10)
+
+##### Added the methods to calculate gas fee and display it on the widget.
+
+*Added the methods to calculate gas fee and display it on the widget
+*Fixed some linting issues.
+

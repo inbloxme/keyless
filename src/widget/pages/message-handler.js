@@ -1,7 +1,6 @@
 import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
 
 export function messageHandlerModal(message, transactionHash = null) {
-  console.log('transactionHash: ', transactionHash);
   return `
   <div class="widget-modal-content active" id="message-handler-modal">
     <div class="widget-modal-header">
@@ -13,19 +12,19 @@ export function messageHandlerModal(message, transactionHash = null) {
     <div class="widget-modal-motes">
       <p>
       ${
-        message != undefined ? message : ''
-      },your transaction is sent to the blockchain and is being mined. Click below to view in real time.
+  message != undefined ? message : ''
+},your transaction is sent to the blockchain and is being mined. Click below to view in real time.
       </p>
 
       ${
-        transactionHash && transactionHash != undefined && transactionHash != ''
-          ? `
+  transactionHash && transactionHash != undefined && transactionHash != ''
+    ? `
       <label class="ether-scan">
         Check your transaction on <a href="https://ropsten.etherscan.io/tx/${transactionHash}" target="_blank"><img src="https://etherscan.io/images/logo-ether.png" alt="ether-scan" class="ether-scan-logo"></a>
       </label>
       `
-          : ''
-      }
+    : ''
+}
       <p class="transaction-message">
         Click Ok to continue
       </p>

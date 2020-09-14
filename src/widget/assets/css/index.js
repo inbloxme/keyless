@@ -48,11 +48,14 @@ export function exportCss() {
   }
   .widget-modal-footer p {
     color: #707070;
-    font-size: 16px;
+    font-size: 10px;
     line-height: 25px;
   }
   .widget-modal-footer p a {
     color: #1f4788;
+  }
+  .widget-modal-footer p a svg{
+    width:60px;
   }
   .widget-modal-button {
     text-align: center;
@@ -195,7 +198,8 @@ export function exportCss() {
   }
   .widget-modal-motes .ether-scan {
     line-height: 25px;
-    margin: 40px;
+    margin: 15px 0px;
+    text-align: center;
   }
   .widget-seed-input-wrap {
     margin-top: 1rem;
@@ -310,6 +314,34 @@ export function exportCss() {
     padding-bottom: 15px;
     text-align: center;
   }
+
+
+  @media only screen and (max-width: 767px) {
+
+    .widget-modal-content{
+      width: 92%;
+      margin: 15px;
+      bottom: initial;
+      right: initial;
+      padding: 15px;
+    }
+    .widget-modal-header h1{
+      font-size:18px;
+    }
+    .widget-modal-link p{
+      font-size:14px;
+    }
+    
+  }
+  @media only screen and (max-width: 320px) {
+    .widget-modal-motes p span {
+      font-size: 11px;
+    }
+    .widget-modal-motes p label{
+      width:30%;
+    }
+  }
+
 
   /* Loader CSS */
   #loader {

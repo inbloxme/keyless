@@ -3,7 +3,7 @@ import {
   metaMaskIcon,
   privateKeyIcon,
   keyStoreIcon,
-  inbloxMe
+  inbloxMe,
 } from '../../assets/images';
 
 export function resetPasswordModal() {
@@ -80,18 +80,23 @@ export function resetPasswordModal() {
 // Reset Password helper method.
 export async function resetPassword(keylessInstance, options) {
   const resetPwdResponse = await keylessInstance.resetPassword(options);
+
   hideLoader();
-  if (typeof resetPwdResponse.error == 'string') {
+  if (typeof resetPwdResponse.error === 'string') {
     document.getElementById('error-message').innerHTML = resetPwdResponse.error;
     document.getElementById('error-message').style.display = 'block';
+
     return false;
-  } else if (Array.isArray(resetPwdResponse.error)) {
-    var errorMessage = resetPwdResponse.error.map((e) => e.message).join(',');
+  } if (Array.isArray(resetPwdResponse.error)) {
+    const errorMessage = resetPwdResponse.error.map((e) => e.message).join(',');
+
     document.getElementById('error-message').innerHTML = errorMessage;
     document.getElementById('error-message').style.display = 'block';
+
     return false;
-  } else if (resetPwdResponse.response) {
+  } if (resetPwdResponse.response) {
     document.getElementById('error-message').style.display = 'none';
+
     return true;
   }
 }

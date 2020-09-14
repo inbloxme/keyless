@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 import { inbloxWidgetIcon, inbloxMe } from '../../assets/images';
 
 import { loader } from '../loader';
@@ -59,19 +60,20 @@ export async function changePasswordWithPrivateKey(
 
   document.getElementById('error-message').style.display = 'none';
   const userCredentails = {
-    oldPassword: oldPassword,
-    newPassword: newPassword,
-    confirmPassword: confirmPassword,
-    encryptedPrivateKey: privateKey
+    oldPassword,
+    newPassword,
+    confirmPassword,
+    encryptedPrivateKey: privateKey,
   };
 
   const changePwdResponse = await keylessInstance.changePassword(
     userCredentails
   );
+
   hideLoader();
   if (changePwdResponse.error) {
     return false;
-  } else if (changePwdResponse.response) {
+  } if (changePwdResponse.response) {
     return true;
   }
 }
