@@ -1,4 +1,4 @@
-let closeIcon = `<?xml version="1.0" encoding="UTF-8"?>
+const closeIcon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
     <title>Close</title>

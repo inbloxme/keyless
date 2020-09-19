@@ -80,3 +80,8 @@
 *Added the methods to calculate gas fee and display it on the widget
 *Fixed some linting issues.
 
+### 1.1.7 (2020-19-10)
+
+##### Reenabled the back button on the "Enter Password" screen.
+
+*Reenabled the back button on the "Enter Password" screen.

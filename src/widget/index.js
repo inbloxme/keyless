@@ -1,4 +1,5 @@
 /* eslint-disable comma-dangle */
+/* eslint-disable import/no-cycle */
 import events from 'events';
 
 import {
@@ -118,7 +119,8 @@ export class Widget {
 
       getAuthTab(
         this,
-        () => transactionDetailsConfirmation(this.transactionData), 'transaction-details-confirmation'
+        () => transactionDetailsConfirmation(this.transactionData),
+        'transaction-details-confirmation'
       );
 
       try {
@@ -157,7 +159,9 @@ export class Widget {
         gasFee,
       };
       getAuthTab(
-        this, () => transactionDetailsConfirmation(this.transactionData), 'transaction-details-confirmation'
+        this,
+        () => transactionDetailsConfirmation(this.transactionData),
+        'transaction-details-confirmation'
       );
 
       try {
@@ -275,13 +279,14 @@ export class Widget {
     // Onclick handler for Sign & send transaction modal.
     if (this.activeTabIdName === 'sign-and-send-transaction') {
       const backFromSignAndSendTranx = document.getElementById('back-arrow-icon');
-      const signAndSendTranxButton = document.getElementById('sign-and-send-tranx-button');
 
       backFromSignAndSendTranx.onclick = () => {
         this.setActiveTab('transaction-details-confirmation', {
-          signedTransaction: this.transactionData,
+          transactionData: this.transactionData,
         });
       };
+
+      const signAndSendTranxButton = document.getElementById('sign-and-send-tranx-button');
 
       signAndSendTranxButton.onclick = async () => {
         showLoader();
@@ -384,7 +389,9 @@ export class Widget {
       const selectResetButton = document.getElementById('reset-option-selected');
 
       selectResetButton.onclick = () => {
-        const resetPasswordOption = document.querySelector('input[name="reset-password-by"]:checked').value;
+        const resetPasswordOption = document.querySelector(
+          'input[name="reset-password-by"]:checked'
+        ).value;
 
         this.setActiveTab(resetPasswordOption);
       };

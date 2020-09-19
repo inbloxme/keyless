@@ -1,4 +1,4 @@
-let backIcon = `<?xml version="1.0" encoding="UTF-8"?>
+const backIcon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="25px" height="20px" viewBox="0 0 154 304" version="1.1" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 61 (89581) - https://sketch.com -->

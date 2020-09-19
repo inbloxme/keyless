@@ -1,4 +1,4 @@
-let successIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="89" height="88" viewBox="0 0 89 88">
+const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="89" height="88" viewBox="0 0 89 88">
     <defs>
         <style>
             .b1{fill:#fff}

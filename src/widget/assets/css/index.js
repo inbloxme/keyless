@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 export function exportCss() {
   return `body {
     font-family: 'Poppins', sans-serif !important;
@@ -309,6 +310,7 @@ export function exportCss() {
   }
   #back-arrow-icon {
     float: left;
+    cursor: pointer;
   }
   .transaction-message {
     padding-bottom: 15px;

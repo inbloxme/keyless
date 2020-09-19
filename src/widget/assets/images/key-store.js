@@ -1,4 +1,4 @@
-let keyStoreIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="54.771" height="72.198" viewBox="0 0 54.771 72.198">
+const keyStoreIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="54.771" height="72.198" viewBox="0 0 54.771 72.198">
     <defs>
         <style>
             .bd{fill:#fff}

@@ -66,9 +66,7 @@ export async function changePasswordWithPrivateKey(
     encryptedPrivateKey: privateKey,
   };
 
-  const changePwdResponse = await keylessInstance.changePassword(
-    userCredentails
-  );
+  const changePwdResponse = await keylessInstance.changePassword(userCredentails);
 
   hideLoader();
   if (changePwdResponse.error) {
