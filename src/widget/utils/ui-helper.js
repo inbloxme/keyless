@@ -46,9 +46,7 @@ export function getActiveTabModal(activeId, options) {
       activeTabModal = signAndSendTransactionModal(options.currentUser);
       break;
     case 'transaction-details-confirmation':
-      activeTabModal = transactionDetailsConfirmation(
-        options.transactionData
-      );
+      activeTabModal = transactionDetailsConfirmation(options.transactionData);
       break;
     case 'transaction-success':
       activeTabModal = transactionSuccess(options.transactionHash);

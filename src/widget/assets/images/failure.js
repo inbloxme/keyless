@@ -1,4 +1,4 @@
-let failureIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="89" height="88" viewBox="0 0 89 88">
+const failureIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="89" height="88" viewBox="0 0 89 88">
     <defs>
         <style>
             .c11{fill:none;stroke:#fff;stroke-linecap:round;stroke-width:6px}

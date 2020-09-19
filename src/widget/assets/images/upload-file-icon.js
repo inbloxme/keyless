@@ -1,4 +1,4 @@
-let uploadFileIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="42.82" height="54.759" viewBox="0 0 42.82 54.759">
+const uploadFileIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="42.82" height="54.759" viewBox="0 0 42.82 54.759">
     <defs>
         <style>
             .ce{fill:#fff}

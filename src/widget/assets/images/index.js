@@ -19,5 +19,5 @@ export {
   uploadFileIcon,
   closeIcon,
   backIcon,
-  inbloxMe
+  inbloxMe,
 };

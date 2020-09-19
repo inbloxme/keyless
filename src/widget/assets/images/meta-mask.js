@@ -1,4 +1,4 @@
-let metaMaskIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="78.797" height="78.797" viewBox="0 0 78.797 78.797">
+const metaMaskIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="78.797" height="78.797" viewBox="0 0 78.797 78.797">
     <defs>
         <style>
             .ab{fill:#fec478}.cb{fill:#fe8821}
