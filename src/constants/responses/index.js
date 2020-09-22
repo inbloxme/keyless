@@ -6,4 +6,5 @@ module.exports = {
   INVALID_MNEMONIC: 'Invalid mnemonic phrase.',
   PASSWORD_MATCH_ERROR: 'New password and confirm password should match.',
   PASSWORD_CHANGE_SUCCESS: 'New password and encrypted private key has been updated and stored successfully.',
+  INVALID_RPC_RESPONSE: 'Invalid JSON RPC response. Please check your web3 provider URL.',
 };

@@ -22,8 +22,15 @@ const {
   getRequestWithAccessToken,
   getBaseURL,
 } = require('./utils/helper');
+
 const {
-  INSUFFICIENT_FUNDS, INVALID_PRIVATE_KEY, WRONG_PASSWORD, INVALID_MNEMONIC, PASSWORD_MATCH_ERROR, PASSWORD_CHANGE_SUCCESS,
+  INSUFFICIENT_FUNDS,
+  INVALID_PRIVATE_KEY,
+  WRONG_PASSWORD,
+  INVALID_MNEMONIC,
+  PASSWORD_MATCH_ERROR,
+  PASSWORD_CHANGE_SUCCESS,
+  INVALID_RPC_RESPONSE,
 } = require('./constants/responses');
 
 class Wallet {
@@ -82,14 +89,13 @@ class Wallet {
 
 class Keyless {
   constructor({
-    apiKey, apiSecret, infuraKey, env,
+    apiKey, apiSecret, web3URL, env,
   }) {
     this.authToken = '';
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
-    this.infuraKey = infuraKey;
     this.env = env;
-    this.web3 = new Web3(new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/${this.infuraKey}`));
+    this.web3 = new Web3(new Web3.providers.HttpProvider(web3URL));
   }
 
   async getUser({ userName, password }) {
@@ -120,45 +126,49 @@ class Keyless {
   async signTransaction({
     to, value, gasPrice, gasLimit, data, nonce, password,
   }) {
-    const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await this.validatePasswordAndGetPKey({ password, authToken: this.authToken });
+    try {
+      const { error: ENCRYPTED_PKEY_ERROR, response: encryptedPrivateKey } = await this.validatePasswordAndGetPKey({ password, authToken: this.authToken });
 
-    if (ENCRYPTED_PKEY_ERROR) {
-      return { error: ENCRYPTED_PKEY_ERROR };
+      if (ENCRYPTED_PKEY_ERROR) {
+        return { error: ENCRYPTED_PKEY_ERROR };
+      }
+
+      const { error: DECRYPT_KEY_ERROR, response: privateKey } = await decryptKey({ encryptedPrivateKey, password });
+
+      if (DECRYPT_KEY_ERROR) {
+        return { error: DECRYPT_KEY_ERROR };
+      }
+
+      const pKey = privateKey.slice(2);
+      const accountObject = this.web3.eth.accounts.privateKeyToAccount(pKey);
+
+      const defaultGasPrice = await this.web3.eth.getGasPrice();
+
+      const count = await this.web3.eth.getTransactionCount(accountObject.address);
+
+      const defaultNonce = await this.web3.utils.toHex(count);
+
+      const rawTx = {
+        to,
+        from: accountObject.address,
+        value: this.web3.utils.toHex(value),
+        gasPrice: this.web3.utils.toHex(gasPrice) || this.web3.utils.toHex(defaultGasPrice),
+        gas: this.web3.utils.numberToHex(gasLimit) || this.web3.utils.numberToHex(DEFAULT_GAS_LIMIT),
+        data: data || '0x00',
+        nonce: nonce || defaultNonce,
+        chainId: 3,
+      };
+
+      const pkey = Buffer.from(pKey, 'hex');
+      const tx = new Tx(rawTx, { chain: 'ropsten', hardfork: 'petersburg' });
+
+      tx.sign(pkey);
+      const signedTx = `0x${tx.serialize().toString('hex')}`;
+
+      return { response: signedTx };
+    } catch (error) {
+      return { error: INVALID_RPC_RESPONSE };
     }
-
-    const { error: DECRYPT_KEY_ERROR, response: privateKey } = await decryptKey({ encryptedPrivateKey, password });
-
-    if (DECRYPT_KEY_ERROR) {
-      return { error: DECRYPT_KEY_ERROR };
-    }
-
-    const pKey = privateKey.slice(2);
-    const accountObject = this.web3.eth.accounts.privateKeyToAccount(pKey);
-
-    const defaultGasPrice = await this.web3.eth.getGasPrice();
-
-    const count = await this.web3.eth.getTransactionCount(accountObject.address);
-
-    const defaultNonce = await this.web3.utils.toHex(count);
-
-    const rawTx = {
-      to,
-      from: accountObject.address,
-      value: this.web3.utils.toHex(value),
-      gasPrice: this.web3.utils.toHex(gasPrice) || this.web3.utils.toHex(defaultGasPrice),
-      gas: this.web3.utils.numberToHex(gasLimit) || this.web3.utils.numberToHex(DEFAULT_GAS_LIMIT),
-      data: data || '0x00',
-      nonce: nonce || defaultNonce,
-      chainId: 3,
-    };
-
-    const pkey = Buffer.from(pKey, 'hex');
-    const tx = new Tx(rawTx, { chain: 'ropsten', hardfork: 'petersburg' });
-
-    tx.sign(pkey);
-    const signedTx = `0x${tx.serialize().toString('hex')}`;
-
-    return { response: signedTx };
   }
 
   // eslint-disable-next-line consistent-return
