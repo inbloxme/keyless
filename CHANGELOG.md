@@ -85,3 +85,9 @@
 ##### Reenabled the back button on the "Enter Password" screen.
 
 *Reenabled the back button on the "Enter Password" screen.
+
+### 1.1.8 (2020-22-10)
+
+##### Enabled the user to set custom web3 provider URL.
+
+*Enabled the user to set custom web3 provider URL.

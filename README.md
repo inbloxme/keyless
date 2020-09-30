@@ -47,8 +47,11 @@ Import the package into your project using,
 
 Initialise the constructor using,
 
-`const keyless = new inblox.Keyless(apiKey, apiSecret, infuraKey);` 
+`const keyless = new inblox.Keyless(apiKey, apiSecret, web3URL);` 
 
+`apiKey` - The API Key for this SDK. 
+`apiSecret` - The API Secret for this SDK.
+`web3URL` - Web3 RPC provider URL.
 
 > Get User
 
@@ -56,7 +59,8 @@ This method can be used to sign a transaction using the user's private key. The 
 
 `const getUser = keyless.getUser({ userName, password });`
 
-`userName` - The Inblox username of the user. `password` - The Inblox password of the user.
+`userName` - The Inblox username of the user. 
+`password` - The Inblox password of the user.
 
 
 > Sign Transaction
