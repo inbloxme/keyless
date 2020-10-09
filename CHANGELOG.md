@@ -94,6 +94,6 @@
 
 ### 1.1.9 (2020-10-09)
 
-##### Enabled the user to set custom web3 provider URL.
+##### User needs to initialize the Widget constructor by passing the rpcURL and the environment.
 
-*Enabled the user to set custom web3 provider URL.
+*Enabled the user to initialize the constructor by passing the rpcURL and the environment.
