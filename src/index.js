@@ -89,13 +89,13 @@ class Wallet {
 
 class Keyless {
   constructor({
-    apiKey, apiSecret, web3URL, env,
+    apiKey, apiSecret, rpcURL, env,
   }) {
     this.authToken = '';
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.env = env;
-    this.web3 = new Web3(new Web3.providers.HttpProvider(web3URL));
+    this.web3 = new Web3(new Web3.providers.HttpProvider(rpcURL));
   }
 
   async getUser({ userName, password }) {
