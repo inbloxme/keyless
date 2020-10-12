@@ -80,14 +80,20 @@
 *Added the methods to calculate gas fee and display it on the widget
 *Fixed some linting issues.
 
-### 1.1.7 (2020-19-10)
+### 1.1.7 (2020-09-19)
 
 ##### Reenabled the back button on the "Enter Password" screen.
 
 *Reenabled the back button on the "Enter Password" screen.
 
-### 1.1.8 (2020-22-10)
+### 1.1.8 (2020-09-22)
 
 ##### Enabled the user to set custom web3 provider URL.
 
 *Enabled the user to set custom web3 provider URL.
+
+### 1.1.9 (2020-10-09)
+
+##### User needs to initialize the Widget constructor by passing the rpcURL and the environment.
+
+*Enabled the user to initialize the constructor by passing the rpcURL and the environment.

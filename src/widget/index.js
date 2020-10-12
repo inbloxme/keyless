@@ -27,13 +27,12 @@ const inbloxSDK = require('..');
 export const eventEmitter = new events.EventEmitter();
 
 export class Widget {
-  constructor() {
-    // this.partnerData = partnerData;
+  constructor({ env, rpcURL }) {
     const token = getUserToken();
 
     this.inbloxKeyless = new inbloxSDK.Keyless({
-      infuraKey: '7484a12fa3b544f79bf51ef44edd6db5',
-      env: 'dev',
+      rpcURL,
+      env
     });
     this.inbloxKeyless.authToken = token || '';
     this.handleName = '';
