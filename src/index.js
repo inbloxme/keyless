@@ -31,6 +31,8 @@ const {
   PASSWORD_MATCH_ERROR,
   PASSWORD_CHANGE_SUCCESS,
   INVALID_RPC_RESPONSE,
+  LOW_GAS_LIMIT,
+  INVALID_PUBLIC_ADDRESS,
 } = require('./constants/responses');
 
 class Wallet {
@@ -167,6 +169,10 @@ class Keyless {
 
       return { response: signedTx };
     } catch (error) {
+      if (error.message === 'The field to must have byte length of 20') {
+        return { error: INVALID_PUBLIC_ADDRESS };
+      }
+
       return { error: INVALID_RPC_RESPONSE };
     }
   }
@@ -209,6 +215,11 @@ class Keyless {
       if (error.message === 'Returned error: insufficient funds for gas * price + value') {
         return { error: INSUFFICIENT_FUNDS };
       }
+      if (error.message === 'Returned error: base fee exceeds gas limit' || error.message === 'Returned error: intrinsic gas too low') {
+        return { error: LOW_GAS_LIMIT };
+      }
+
+      return { error: INSUFFICIENT_FUNDS };
     }
   }
 

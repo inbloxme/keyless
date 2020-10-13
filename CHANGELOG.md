@@ -97,3 +97,9 @@
 ##### User needs to initialize the Widget constructor by passing the rpcURL and the environment.
 
 *Enabled the user to initialize the constructor by passing the rpcURL and the environment.
+
+### 1.2.0 (2020-10-13)
+
+##### Custom error messages.
+
+*Added custom error messages for web3 provider errors like insufficient funds, low gas limit or invalid public address.
