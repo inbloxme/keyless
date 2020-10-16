@@ -4,7 +4,7 @@ This package enables usage of inblox handlename infrastructure as a keyless sign
 
 > Disclaimer - This is WIP, and release in beta.
 
-## **Keyless Tranasctions**
+## **Keyless Transactions**
 
 Talking about user adoption, the bottleneck faced by most of the dApps is the user onboarding flow. The user needs to have a wallet, generating and operating a wallet is cumbersome for a new crypto user.
 
@@ -13,10 +13,12 @@ Keyless transactions abstracts the private key from the user and allows the user
 Inblox Keyless Transactions allow users to sign transactions via,
 
 1. Password
+
 2. Biometrics A. Fingerprint B. FaceID
+
 3. Device based virtual Hardware Security Module
 
-We have made **password based transaction signing** available for anyone to use, build upon and replicate.
+We have made **password based transaction signing** available for anyone to use, build upon and replicate.
 
 This documentation focuses more on that, more coming soon. If you want to know more and enagage with development, you can email at the address in footnotes.
 
@@ -24,10 +26,13 @@ Happy #BUIDLing
 
 ## **Design Principles**
 
-1. **Private Key Abstraction** - Inbloxme infrastructure never have the visibility of the private key, it's encrypted on the client with the user password(unsalted & unencrypted) and sent to the virtual Hardware Security Module for safe storage.
-2. **Password Invisibility** - User password is never exposed in plain text to any of the systems apart from the client.
-3. **Non-Custodial Relationship** - User Private Key is always exportable and encrypted version can be deleted (redundant) from the inbloxme infrastructure.
-4. **App Agnostic** - Any application without getting an API key can access inbloxme handlename service, password based transaction signing requires special access which can be requested for. (In Alpha Testing).
+1. **Private Key Abstraction** - Inbloxme infrastructure never have the visibility of the private key, it's encrypted on the client with the user password(unsalted & unencrypted) and sent to the virtual Hardware Security Module for safe storage.
+
+2. **Password Invisibility** - User password is never exposed in plain text to any of the systems apart from the client.
+
+3. **Non-Custodial Relationship** - User Private Key is always exportable and encrypted version can be deleted (redundant) from the inbloxme infrastructure.
+
+4. **App Agnostic** - Any application without getting an API key can access inbloxme handlename service, password based transaction signing requires special access which can be requested for. (In Alpha Testing).
 
 ## **Installation and Usage**
 
@@ -35,159 +40,348 @@ Happy #BUIDLing
 
 Install the package by running the command,
 
-`npm install @inbloxme/keyless`
+`npm install @inbloxme/keyless-transactions`
 
 Import the package into your project using,
 
-`const inblox = require('@inbloxme/keyless');`
+`const inblox = require('@inbloxme/keyless-transactions');`
 
 ## **Keyless Transactions**
 
-> Initialising
+> Initializing
 
-Initialise the constructor using,
+Initialise the constructor using your custom RPC URL.
 
-`const keyless = new inblox.Keyless(apiKey, apiSecret, web3URL);` 
+`const keyless = new inblox.Keyless({ apiKey, apiSecret, rpcURL, env });`
 
-`apiKey` - The API Key for this SDK. 
-`apiSecret` - The API Secret for this SDK.
-`web3URL` - Web3 RPC provider URL.
+Parameters,
+
+* `apiKey` - The API Key for this user.
+
+* `apiSecret` - The API Secret for this user.
+
+* `rpcURL` - Web3 RPC provider URL.
+
+* `env` - API environments (eg. dev, test).
+
+--------------------------  
+
+## Keyless Methods
 
 > Get User
 
-This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
+This method is used get user login token.
 
-`const getUser = keyless.getUser({ userName, password });`
+`getUser({ userName, password });`
 
-`userName` - The Inblox username of the user. 
-`password` - The Inblox password of the user.
+Parameters,
 
+* `userName` - InbloxId/Email of the user.
 
-> Sign Transaction
+* `password` - User's Inblox password.
 
-This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
+--------------------------
 
-`const signedTx = keyless.signTransaction({ to, value, gasPrice, gasLimit, data, nonce, password });`
+> Sign transactions
 
-`to` (required) - THe address of the recepient.
-`value` (required) - The amount to be sent.
-`password` (required) - The Inblox password of the user.
-`gasPrice` (optional) - The gas price.
-`gasLimit` (optional) - Gas Limit.
-`data` (optional) - Data.
-`nonce` (optional) - Nonce.
+This method can be used to sign a transaction using the user's private key.
 
+`signTransaction({ to, value, gasPrice, gasLimit, data, nonce, password });`
 
-> Send Transaction
+Parameters,
 
-This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
+* `to` - Recipient public address
 
-`const sendTx = keyless.sendTx({ signedTx });`
+* `value` - Amount to be transferred in Wei
 
-`signedTx` (required) - Signed Transaction in string.
+* `gasPrice` (optional) - Gas price value to be set in Wei
 
+* `gasLimit` (optional) - Gas limit value to be set
 
-> Sign and send Transaction
+* `data` (optional) - Data, in case of a contract call
 
-This method can be used to sign a transaction using the user's private key. The transaction can be done using the provider as infura by inputting the infura key or the RPC URL.
+* `nonce` (optional) - Transaction nonce
 
-`const signAndSendTx = keyless.signAndSendTx({ to, value, gasPrice, gasLimit, data, nonce, password });`
+* `password` - User's Inblox password
 
-`to` (required) - THe address of the recepient.
-`value` (required) - The amount to be sent.
-`password` (required) - The Inblox password of the user.
-`gasPrice` (optional) - The gas price.
-`gasLimit` (optional) - Gas Limit.
-`data` (optional) - Data.
-`nonce` (optional) - Nonce.
+--------------------------
 
+> Send transactions
 
-> Validate password and get Encrypted Private Key
+This Method is used to send a signed transaction to the blockchain.
 
-This method can be used to validate a user's password and if successful, fetch the user's encrypted private key from Inblox KMS.
+`sendTx({ signedTx });`
 
-`const encryptedPKey = keyless.validatePasswordAndGetPKey({ password });`
+Parameters,
 
-`password` (required) - The Inblox password of the user.
+* `signedTx` - Signed transaction in hex
 
+--------------------------
+
+> Sign and send transactions
+
+This method is used to sign a raw transaction using the user's private key and send it to the blockchain
+
+`signAndSendTx({ to, value, gasPrice, gasLimit, data, nonce, password });`
+
+Parameters,
+
+* `to` - Recipient public address
+
+* `value` - Amount to be transferred in Wei
+
+* `gasPrice` (optional) - Gas price value to be set in Wei
+
+* `gasLimit` (optional) - Gas limit value to be set
+
+* `data` (optional) - Data, in case of a contract call
+
+* `nonce` (optional) - Transaction nonce
+
+* `password` - User's Inblox password
+
+--------------------------
+
+> Validate password and get private key
+
+This method is used to validate the user's password and get the private key
+
+`validatePasswordAndGetPKey({ password });`
+
+Parameters,
+
+* `password` - User's Inblox password of the user
+
+--------------------------
 
 > Change Password
 
-This method can be used to change a user's existing password. This method has to be called after validating the user's old password which can be done using the method `validatePasswordAndGetPKey()`.
+This Method is used to change a user's password
 
-`const changePassword = keyless.changePassword({ encryptedPrivateKey, oldPassword, newPassword, confirmPassword });`
+`changePassword({ encryptedPrivateKey, oldPassword, newPassword, confirmPassword });`
 
-`encryptedPrivateKey` (required) - The encrypted private key of the user which is obtained using the function `validatePasswordAndGetPKey()`.
-`oldPassword` (required) - The old password of the user.
-`newPassword` (required) - The new password of the user.
-`confirmPassword` (required) - The new password of the user for confirmation.
+Parameters,
 
+* `encryptedPrivateKey` - The encrypted private key of the user
+
+* `oldPassword` - Old Inblox password of the user
+
+* `newPassword` - New password to be set
+
+* `confirmPassword` - Confirm new password
+
+--------------------------
 
 > Reset Password
 
-This method is used to reset the password of the user incase the user forget's their password. The user needs to provide any of their below mentioned wallet info to recover their private key to reencrypt and store it in the Inblox KMS.
+This Method is used to reset a user's password
 
-`const resetPassword = keyless.resetPassword({ privateKey, seedPhrase, encryptedJson, walletPassword, newPassword });`
+`resetPassword({ privateKey, seedPhrase, encryptedJson, walletPassword, newPassword });`
 
-`privateKey` - The private key of the user.
-`seedPhrase` - The 12 word seed phrase of the wallet.
-`encryptedJson` - The JSON of the Keystore file.
-`walletPassword` - The password of the Keystore file.
-`newPassword` - THe new password of the user.
+Parameters,
 
-The user has to input either the `privateKey` or `seedPhrase` or `encryptedJson` in order to recover the wallet.
-If the user wishes to input the `encryptedJson`, then they also have to input the `walletPassword` to decrypt it.
+* `privateKey` - The private key of the user. OR
 
+* `seedPhrase` - User's wallet seed phrase. OR
 
-## **Wallet methods**
+* `encryptedJson` - User's wallet keystore file. AND
 
+* `walletPassword` - Keystore passphrase
 
-> Initialising
+* `newPassword` - New password to set
 
-Initialise the constructor using,
+--------------------------
 
-`const Wallet = new inblox.Wallet();`
+> Convert to ETH
 
+This Method is used to convert value in Wei/gWei to ETH.
 
-> Create a new wallet
+`convertToEth({ srcUnit, amount });`
 
-This method can be used to create a new Ethereum wallet.
+Parameters,
 
-`const wallet = Wallet.createWallet();`
+* `srcUnit` - Source unit to be converted to ETH
 
+* `amount` - Amount in source unit
 
-> Import wallet using Keystore JSON
+--------------------------
 
-This method can be used to import a wallet information using the keystore json and password as parameters.
+## Wallet Methods
 
-`const wallet = Wallet.importFromEncryptedJson(jsonData, password);`
+> Initializing
 
-`jsonData` - The JSON data of the keystore file. 
-`password` - The password of the keystore file.
+Initialise the constructor using your custom RPC URL.
 
+--------------------------
 
-> Import wallet using Mnemonic phrase
+`const keyless = new inblox.Wallet();`
 
-This method can be used to import a wallet information using the 12 word seed phrase.
+  --------------------------
 
-`const wallet = Wallet.importFromMnemonic(mnemonic);`
+> Create Wallet
 
-`mnemonic` - The 12 word seed phrase.
+This Method is used to create a new wallet
 
+`createWallet()`
 
-> Import wallet using private key
+--------------------------  
 
-This method can be used to import a wallet information using the private key.
+> Import from Keystore File
 
-`const wallet = Wallet.importFromPrivateKey(privateKey);`
+This Method is used to import a wallet using encrypted JSON and passphrase.
 
-`privateKey` - The private key of the wallet.
+`importFromEncryptedJson(jsonData, password);`
 
+Parameters,
+
+* `jsonData` - The Keystore JSON
+
+* `password` - The password to decrypt the Keystore JSON
+
+--------------------------
+
+> Import from mnemonic
+
+This Method is used to import a wallet using mnemonic phrase
+
+`importFromMnemonic(mnemonic);`
+
+Parameters,
+
+* `mnemonic` - The 12 word mnemonic/seed phrase
+
+--------------------------
+
+> Import from private key
+
+This Method is used to import a wallet using private key
+
+`importFromPrivateKey(privateKey);`
+
+Parameters,
+
+* `privateKey` - User's wallet private key
+
+--------------------------
+
+## Widget Integration
+
+> Initializing
+
+`const keylessWidget = new keyless.Widget({ rpcURL, env });`
+
+Parameters,
+
+* `rpcURL` - Web3 RPC provider URL.
+
+* `env` - API environments (eg. dev, test).
+
+--------------------------
+
+> Event listeners - Initialization
+
+* Listen for the **successful widget initialization** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.KEYLESS_WIDGET_INITIALISED, (data) => { console.log(data) });`
+
+* Listen for the **widget close** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.KEYLESS_WIDGET_CLOSED, (data) => { console.log(data) });`
+
+--------------------------
+
+> Initialize login
+
+`keylessWidget.initLogin();`
+
+--------------------------
+
+> Event listeners - Login
+
+* Listen for the **login success** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.LOGIN_SUCCESS, (data) => { console.log(data) });`
+
+* Listen for the **login failure** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.LOGIN_FAILURE, (data) => { console.log(data) });`
+
+--------------------------
+
+> Sign raw transaction
+
+`keylessWidget.initSignTransaction({ to, value, gasPrice, gasLimit, data });`
+
+Parameters,
+
+* `to` - Public address of the recipient
+
+* `value` - Value to be transferred in Wei
+
+* `gasPrice` (optional) - Gas price to be set for the transaction in Wei
+
+* `gasLimit` (optional) - Gas limit to be used for the transaction
+
+* `data` (optional) - Data, incase of a contract call
+
+--------------------------
+
+> Get the signed transaction data
+
+```keylessWidget.getSignedData()```
+
+Returns `signedTransaction`
+
+--------------------------
+
+> Sign and send transaction
+
+`keylessWidget.initSendTransaction({ to, value, gasPrice, gasLimit, data });`
+
+Parameters,
+
+* `to` - Public address of the recepient
+
+* `value` - Value to be transferred in Wei
+
+* `gasPrice` (optional) - Gas price to be set for the transaction in Wei
+
+* `gasLimit` (optional) - Gas limit to be used for the transaction
+
+* `data` (optional) - Data, incase of a contract call
+
+--------------------------  
+
+> Event listeners - Sign and send transaction
+
+* Listen for the **transaction success** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.TRANSACTION_SUCCESSFUL, (data) => { console.log(data) });`
+
+* Listen for the **transaction failure** event using the event listener
+
+    `keylessWidget.on(keylessWidget.EVENTS.TRANSACTION_FAILED, (data) => { console.log(data) });`
+
+--------------------------
+
+> Listen for the all the events
+
+`keylessWidget.on(keylessWidget.ALL_EVENTS, (data) => { console.log(data) });`
+
+--------------------------
+
+> Get the details of the signed-in user
+
+`keylessWidget.getUserData()`
+
+Returns `publicAddress` and `inbloxId` of the user.
+
+--------------------------
 
 ## **WIP**
 
-Want to contribute, we would ❤️ that!
+Want to contribute, we would ❤️ that!
 
-We are a Global 🌏🌍🌎 team! 💪
+We are a Global 🌏🌍🌎 team! 💪
 
-Write to [dev@inblox.me](mailto:dev@inblox.me), or follow us on twitter, [https://twitter.com/inblox_me](https://twitter.com/inblox_me)
+Write to [dev@inblox.me](mailto:dev@inblox.me), or follow us on twitter, [https://twitter.com/inblox_me](https://twitter.com/inblox_me)

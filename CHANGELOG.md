@@ -103,3 +103,10 @@
 ##### Custom error messages.
 
 *Added custom error messages for web3 provider errors like insufficient funds, low gas limit or invalid public address.
+
+### 1.2.1 (2020-10-16)
+
+##### Updated README.
+
+*Updated the methods and parameters.
+*Added the documentation for Widget initialization.
