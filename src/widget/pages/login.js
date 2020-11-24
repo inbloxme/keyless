@@ -28,13 +28,7 @@ export function loginModal() {
       <div class="widget-modal-input">
         <span id="error-message"></span>
       </div>
-      <div class="widget-modal-input widget-modal-flex">
-        <div class="widget-modal-checkbox">
-          <label>
-            <input type="checkbox" id="remember-me" />
-            <span>Remember Me</span>
-          </label>
-        </div>
+    </div>
     <!-- Button -->
     <div class="widget-modal-button">
       <button id="login-button">
@@ -67,7 +61,6 @@ export function loginModal() {
 export async function login(keylessInstance) {
   const userEmail = document.getElementById('widget-user-email').value;
   const userPassword = document.getElementById('widget-user-password').value;
-  const rememberMe = document.getElementById('remember-me').checked;
 
   const userDetails = {
     userName: userEmail,
@@ -76,19 +69,14 @@ export async function login(keylessInstance) {
 
   // Using Keyless instance methods.
   const loginResponse = await keylessInstance.getUser(userDetails);
-
+  
   hideLoader();
   if (loginResponse.error) {
     document.getElementById('error-message').innerHTML = loginResponse.error;
     document.getElementById('error-message').style.display = 'block';
-
     return { status: false };
-  } if (loginResponse.response) {
+  } else if (loginResponse.response) {
     document.getElementById('error-message').style.display = 'none';
-    if (rememberMe) {
-      setUserToken(loginResponse.response.token);
-    }
-
     return { status: true, data: loginResponse.response };
   }
 }
