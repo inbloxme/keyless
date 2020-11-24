@@ -202,7 +202,6 @@ async function verifyPublicAddress({ address, authToken, env }) {
 
 module.exports = {
   postRequest,
-  getReq,
   encryptKey,
   decryptKey,
   updatePasswordAndPrivateKey,

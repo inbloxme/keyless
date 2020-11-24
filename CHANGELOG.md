@@ -103,3 +103,9 @@
 ##### Custom error messages.
 
 *Added custom error messages for web3 provider errors like insufficient funds, low gas limit or invalid public address.
+
+### 1.2.1 (2020-11-24)
+
+##### Removed IP logging.
+
+*Removed IP logging method from sendTx method and getReq helper method.
