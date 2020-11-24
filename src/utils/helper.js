@@ -112,19 +112,6 @@ async function getRequest({ url, authToken }) {
   }
 }
 
-async function getReq({ url }) {
-  try {
-    const response = await axios({
-      url,
-      method: 'GET',
-    });
-
-    return { response: response.data };
-  } catch (error) {
-    return { error };
-  }
-}
-
 async function encryptKey({ privateKey, password }) {
   const encryptedPrivateKey = cryptojs.AES.encrypt(privateKey, password);
   const encryptedPrivateKeyString = encryptedPrivateKey.toString();
