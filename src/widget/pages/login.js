@@ -35,11 +35,6 @@ export function loginModal() {
             <span>Remember Me</span>
           </label>
         </div>
-        <div class="widget-modal-forgot-link">
-          <span id="forgot-password-link">Forgot Password?</span>
-        </div>
-      </div>
-    </div>
     <!-- Button -->
     <div class="widget-modal-button">
       <button id="login-button">
