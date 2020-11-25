@@ -5,15 +5,15 @@ import {
   inbloxMe,
 } from '../../assets/images';
 
-import { loader } from '../loader';
+import { loader } from '../loaders/loader';
 
 import { hideLoader } from '../../utils/ui-helper';
 
 export function signAndSendTransactionModal(currentUser) {
   return `
   <div class="widget-modal-content ${
-  currentUser ? 'active' : ''
-}" id="sign-and-send-transaction">
+    currentUser ? 'active' : ''
+  }" id="sign-and-send-transaction">
     ${loader()}
     <div class="widget-modal-header">
       <div id="back-arrow-icon">
@@ -46,7 +46,7 @@ export function signAndSendTransactionModal(currentUser) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/">
+        <a href="https://inblox.me/" target="_blank">
           ${inbloxMe}
         </a>
       </p>
@@ -64,7 +64,9 @@ export function signAndSendTransactionModal(currentUser) {
 export async function signAndSendTransaction(keylessInstance, transactionData) {
   const userPassword = document.getElementById('sign-tranx-user-password')
     .value;
-  const tranxDetails = { ...transactionData, password: userPassword };
+  const tranxDetails = Object.assign({}, transactionData, {
+    password: userPassword
+  });
 
   const tranxResponse = await keylessInstance.signAndSendTx(tranxDetails);
 
@@ -72,9 +74,8 @@ export async function signAndSendTransaction(keylessInstance, transactionData) {
   if (tranxResponse.error) {
     document.getElementById('error-message').innerHTML = tranxResponse.error;
     document.getElementById('error-message').style.display = 'block';
-
     return { status: false };
-  } if (tranxResponse.response) {
+  } else if (tranxResponse.response) {
     document.getElementById('error-message').style.display = 'none';
 
     return { status: true, hash: tranxResponse.response.transactionHash };
