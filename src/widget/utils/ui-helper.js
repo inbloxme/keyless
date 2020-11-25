@@ -10,6 +10,8 @@ import {
   messageHandlerModal,
 } from '../pages';
 
+const { KEYLESS_WIDGET_CLOSED } = require('../../constants/responses');
+
 import { eventEmitter } from '..';
 
 export function getActiveTabModal(activeId, options) {
@@ -109,7 +111,7 @@ export function closeModal(initMethod = 'useractivity') {
     eventName: 'KEYLESS_WIDGET_CLOSED',
     initMethod,
     data: {
-      message: 'Keyless widget closed',
+      message: KEYLESS_WIDGET_CLOSED,
     },
   });
 }

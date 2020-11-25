@@ -21,6 +21,17 @@ import { signAndSendTransaction } from './pages/transactions/sign-and-send-trans
 
 const inbloxSDK = require('..');
 
+const { DEFAULT_GAS_LIMIT } = require('../config');
+
+const {
+  USER_NOT_LOGGED_IN,
+  USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION,
+  INVALID_USERNAME_OR_PASSWORD,
+  SIGN_TRANSACTION_FAILED,
+  SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+  SIGN_AND_SEND_TRANSACTION_FAILED,
+} = require('../constants/responses');
+
 export const eventEmitter = new events.EventEmitter();
 
 export class Widget {
@@ -56,7 +67,7 @@ export class Widget {
       return { publicAddress: this.publicAddress, handleName: this.handleName };
     }
 
-    return { error: 'User not logged in' };
+    return { error: USER_NOT_LOGGED_IN };
   }
 
   getSignedData() {
@@ -64,7 +75,7 @@ export class Widget {
       return { signedTransaction: this.signedTransaction };
     }
 
-    return { error: 'User not logged in or not signed transaction' };
+    return { error: USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION };
   }
 
   getGasFeeAndValue(feeDetails, valueDetails) {
@@ -207,7 +218,7 @@ export class Widget {
               status: false,
               eventName: this.EVENTS.LOGIN_FAILURE,
               data: {
-                message: 'Either username or password is not valid',
+                message: INVALID_USERNAME_OR_PASSWORD,
               },
             });
           }
