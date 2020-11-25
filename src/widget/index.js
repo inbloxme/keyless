@@ -248,19 +248,19 @@ export class Widget {
 
         if (signedTx.status) {
           this.signedTransaction = signedTx.hash;
-          eventEmitter.emit(this.EVENTS.TRANSACTION_SUCCESSFUL, {
+          this.eventEmitter.emit(this.EVENTS.SIGN_TRANSACTION_SUCCESSFUL, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
+            eventName: this.EVENTS.SIGN_TRANSACTION_SUCCESSFUL,
             data: {
-              transactionHash: signedTx.hash,
+              signedData: signedTx.hash,
             },
           });
-        } else {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
+        }  else {
+          this.eventEmitter.emit(this.EVENTS.SIGN_TRANSACTION_FAILED, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_FAILED,
+            eventName: this.EVENTS.SIGN_TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed',
+              message: SIGN_TRANSACTION_FAILED,
             },
           });
         }
@@ -284,23 +284,26 @@ export class Widget {
         const sentAndSignedTranx = await signAndSendTransaction(this.inbloxKeyless, this.transactionData);
 
         if (sentAndSignedTranx.status === true) {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_SUCCESSFUL, {
-            status: true,
-            eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
-            data: {
-              transactionHash: sentAndSignedTranx.hash,
+          this.eventEmitter.emit(
+            this.EVENTS.SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+            {
+              status: true,
+              eventName: this.EVENTS.SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+              data: {
+                transactionHash: sentAndSignedTranx.hash,
+              },
             },
-          });
+          );
           this.setActiveTab('message-handler-modal', {
-            message: 'Transaction Successful',
+            message: SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
             transactionHash: sentAndSignedTranx.hash,
           });
         } else {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
+          this.eventEmitter.emit(this.EVENTS.SIGN_AND_SEND_TRANSACTION_FAILED, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_FAILED,
+            eventName: this.EVENTS.SIGN_AND_SEND_TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed',
+              message: SIGN_AND_SEND_TRANSACTION_FAILED,
             },
           });
         }
