@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cryptojs = require('crypto-js');
 
-const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD } = require('../config');
+const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD, AUTH_SERVICE_URL_TEST } = require('../config');
 const {
   WRONG_PASSWORD, INVALID_ENV,
 } = require('../constants/responses');
@@ -11,6 +11,8 @@ const Instance = require('../index');
 async function getBaseURL(env) {
   if (env === 'dev') {
     return { response: AUTH_SERVICE_URL_DEV };
+  } if (env === 'test') {
+    return { response: AUTH_SERVICE_URL_TEST };
   } if (env === undefined || env === 'prod') {
     return { response: AUTH_SERVICE_URL_PROD };
   }
