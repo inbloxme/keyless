@@ -37,7 +37,7 @@ export function loginModal() {
     </div>
     <!-- Links -->
     <div class="widget-modal-link">
-      <p>Don’t have an account? <a href="https://app.inblox.me/">Sign Up here</a></p>
+      <p>Don’t have an account? <a href="https://test-app.inblox.me/register" target="_blank">Sign Up here</a></p>
     </div>
     <!-- Footer -->
     <div class="widget-modal-footer">
