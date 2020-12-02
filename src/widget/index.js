@@ -1,5 +1,3 @@
-/* eslint-disable comma-dangle */
-/* eslint-disable import/no-cycle */
 import events from 'events';
 
 import {
@@ -13,6 +11,7 @@ import {
   closeModal,
 } from './utils';
 
+import { showModalLoader, hideModalLoader } from './utils/ui-helper';
 import { loginModal, transactionDetailsConfirmation } from './pages';
 
 import { login } from './pages/login';
@@ -20,8 +19,16 @@ import { signTransaction } from './pages/transactions/sign-transaction';
 import { signAndSendTransaction } from './pages/transactions/sign-and-send-transaction';
 
 const inbloxSDK = require('..');
+const { DEFAULT_GAS_LIMIT } = require('../config');
 
-export const eventEmitter = new events.EventEmitter();
+const {
+  USER_NOT_LOGGED_IN,
+  USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION,
+  INVALID_USERNAME_OR_PASSWORD,
+  SIGN_TRANSACTION_FAILED,
+  SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+  SIGN_AND_SEND_TRANSACTION_FAILED,
+} = require('../constants/responses');
 
 export class Widget {
   constructor({ env, rpcURL }) {
@@ -29,7 +36,7 @@ export class Widget {
 
     this.inbloxKeyless = new inbloxSDK.Keyless({
       rpcURL,
-      env
+      env,
     });
     this.inbloxKeyless.authToken = token || '';
     this.handleName = '';
@@ -41,7 +48,7 @@ export class Widget {
     this.activeTab = loginModal();
     this.transactionData = {};
     this.oldPassword = '';
-    this.privatKey = '';
+    this.privateKey = '';
     this.initMethod = '';
 
     this.isInitialised = false;
@@ -49,14 +56,16 @@ export class Widget {
     this.ALL_EVENTS = '*';
     this.ERROR = 'KEYLESS_ERROR';
     this.INITIALISED_EVENTS = [];
+    this.eventEmitter = new events.EventEmitter();
   }
+
 
   getUserData() {
     if (this.isUserLoggedIn) {
       return { publicAddress: this.publicAddress, handleName: this.handleName };
     }
 
-    return { error: 'User not logged in' };
+    return { error: USER_NOT_LOGGED_IN };
   }
 
   getSignedData() {
@@ -64,13 +73,38 @@ export class Widget {
       return { signedTransaction: this.signedTransaction };
     }
 
-    return { error: 'User not logged in or not signed transaction' };
+    return { error: USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION };
   }
 
   getGasFeeAndValue(feeDetails, valueDetails) {
     return this.inbloxKeyless.convertToEth(feeDetails).then((gasFee) => this.inbloxKeyless
       .convertToEth(valueDetails)
       .then((valueInEth) => ({ gasFee, valueInEth })));
+  }
+
+  async prepareFeeAndValue(userValue, userGasPrice, userGasLimit) {
+    let gasPrice;
+
+    if (userGasPrice != undefined) {
+      gasPrice = userGasPrice;
+    } else {
+      gasPrice = await this.inbloxKeyless.web3.eth.getGasPrice();
+    }
+
+    const gasLimit = userGasLimit || DEFAULT_GAS_LIMIT;
+    const fee = gasPrice * gasLimit;
+
+    const feeDetails = {
+      srcUnit: 'wei',
+      amount: fee.toString(),
+    };
+
+    const valueDetails = {
+      srcUnit: 'wei',
+      amount: userValue.toString(),
+    };
+
+    return { valueDetails, feeDetails };
   }
 
   initLogin() {
@@ -88,83 +122,79 @@ export class Widget {
   initSignTransaction({
     to, value, gasPrice, gasLimit, data,
   }) {
+    showModalLoader();
     this.initMethod = 'sign-transaction';
-    const fee = gasPrice * gasLimit;
-    const feeDetails = {
-      srcUnit: 'wei',
-      amount: fee.toString(),
-    };
-    const valueDetails = {
-      srcUnit: 'wei',
-      amount: value.toString(),
-    };
 
-    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
-      const { gasFee } = res;
-      const { valueInEth } = res;
+    this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
+      this.getGasFeeAndValue(
+        feeAndValue.feeDetails,
+        feeAndValue.valueDetails,
+      ).then((res) => {
+        const { gasFee } = res;
+        const { valueInEth } = res;
 
-      this.transactionData = {
-        to,
-        valueInEth,
-        value,
-        gasPrice,
-        gasLimit,
-        data,
-        gasFee,
-      };
+        this.transactionData = {
+          to,
+          valueInEth,
+          value,
+          gasPrice,
+          gasLimit,
+          data,
+          gasFee,
+        };
 
-      getAuthTab(
-        this,
-        () => transactionDetailsConfirmation(this.transactionData),
-        'transaction-details-confirmation'
-      );
+        getAuthTab(
+          this,
+          () => transactionDetailsConfirmation(this.transactionData),
+          'transaction-details-confirmation',
+        );
 
-      try {
-        generateModal(this);
-      } catch (error) {
-        throw error;
-      }
+        try {
+          hideModalLoader();
+          generateModal(this);
+        } catch (error) {
+          throw error;
+        }
+      });
     });
   }
 
   initSendTransaction({
     to, value, gasPrice, gasLimit, data,
   }) {
+    showModalLoader();
     this.initMethod = 'sign-and-send-transaction';
-    const fee = gasPrice * gasLimit;
-    const feeDetails = {
-      srcUnit: 'wei',
-      amount: fee.toString(),
-    };
-    const valueDetails = {
-      srcUnit: 'wei',
-      amount: value.toString(),
-    };
 
-    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
-      const { gasFee } = res;
-      const { valueInEth } = res;
+    this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
+      this.getGasFeeAndValue(
+        feeAndValue.feeDetails,
+        feeAndValue.valueDetails,
+      ).then((res) => {
+        const { gasFee } = res;
+        const { valueInEth } = res;
 
-      this.transactionData = {
-        to,
-        valueInEth,
-        value,
-        gasPrice,
-        gasLimit,
-        data,
-        gasFee,
-      };
-      getAuthTab(
-        this,
-        () => transactionDetailsConfirmation(this.transactionData),
-        'transaction-details-confirmation'
-      );
+        this.transactionData = {
+          to,
+          valueInEth,
+          value,
+          gasPrice,
+          gasLimit,
+          data,
+          gasFee,
+        };
+        getAuthTab(
+          this,
+          () => transactionDetailsConfirmation(this.transactionData),
+          'transaction-details-confirmation',
+        );
 
-      try {
-        generateModal(this);
-      } catch (error) {
-        throw error;
-      }
+        try {
+          hideModalLoader();
+          generateModal(this);
+        } catch (error) {
+          throw error;
+        }
+      });
     });
   }
 
@@ -193,7 +223,7 @@ export class Widget {
             this.handleName = userData.handleName;
             this.publicAddress = userData.publicAddress;
 
-            eventEmitter.emit(this.EVENTS.LOGIN_SUCCESS, {
+            this.eventEmitter.emit(this.EVENTS.LOGIN_SUCCESS, {
               status: true,
               eventName: this.EVENTS.LOGIN_SUCCESS,
               data: {
@@ -201,13 +231,13 @@ export class Widget {
                 publicAddress: userData.publicAddress,
               },
             });
-            closeModal(this.initMethod);
+            closeModal(this, this.initMethod);
           } else {
-            eventEmitter.emit(this.EVENTS.LOGIN_FAILURE, {
+            this.eventEmitter.emit(this.EVENTS.LOGIN_FAILURE, {
               status: false,
               eventName: this.EVENTS.LOGIN_FAILURE,
               data: {
-                message: 'Either username or password is not valid',
+                message: INVALID_USERNAME_OR_PASSWORD,
               },
             });
           }
@@ -223,7 +253,7 @@ export class Widget {
       const okButton = document.getElementById('ok-button');
 
       okButton.onclick = () => {
-        closeModal(this.initMethod);
+        closeModal(this, this.initMethod);
       };
     }
 
@@ -325,18 +355,18 @@ Widget.prototype.on = function (type, cb) {
 
       if (!this.INITIALISED_EVENTS.includes(evName)) {
         this.INITIALISED_EVENTS.push(evName);
-        eventEmitter.on(evName, cb);
+        this.eventEmitter.on(evName, cb);
       }
     }
   }
 
   if (EVENTS[type] && !this.INITIALISED_EVENTS.includes(EVENTS[type])) {
     this.INITIALISED_EVENTS.push(EVENTS[type]);
-    eventEmitter.on(type, cb);
+    this.eventEmitter.on(type, cb);
   }
 
   if (type === this.ERROR && !this.INITIALISED_EVENTS.includes(this.ERROR)) {
     this.INITIALISED_EVENTS.push(this.ERROR);
-    eventEmitter.on(this.ERROR, cb);
+    this.eventEmitter.on(this.ERROR, cb);
   }
 };
