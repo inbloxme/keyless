@@ -8,10 +8,9 @@ const { keccak256 } = require('js-sha3');
 
 const { Widget } = require('./widget');
 
-const { DEFAULT_GAS_LIMIT, IP_INFO_API } = require('./config');
+const { DEFAULT_GAS_LIMIT } = require('./config');
 const {
   postRequest,
-  getReq,
   encryptKey,
   decryptKey,
   updatePasswordAndPrivateKey,
@@ -181,34 +180,6 @@ class Keyless {
   async sendTx({ signedTx }) {
     try {
       const response = await this.web3.eth.sendSignedTransaction(signedTx);
-
-      const { error: IP_ERROR, response: IP_DATA } = await getReq({ url: IP_INFO_API });
-
-      const {
-        ip, loc, country, region, city,
-      } = IP_DATA;
-
-      if (IP_ERROR) {
-        return { error: IP_ERROR };
-      }
-
-      const { response: AUTH_SERVICE_URL, error: ENV_ERROR } = await getBaseURL(this.env);
-
-      if (ENV_ERROR) {
-        return { error: ENV_ERROR };
-      }
-
-      const { error: TRANSACTION_LOG_ERROR } = await postRequest({
-        url: `${AUTH_SERVICE_URL}/auth/transaction-logs`,
-        authToken: this.authToken,
-        params: {
-          transactionHash: response.transactionHash, ipAddress: ip, location: loc, country, region, city,
-        },
-      });
-
-      if (TRANSACTION_LOG_ERROR) {
-        return { error: TRANSACTION_LOG_ERROR };
-      }
 
       return { response: { transactionHash: response.transactionHash } };
     } catch (error) {
