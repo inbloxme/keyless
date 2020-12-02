@@ -1,5 +1,7 @@
 import { inbloxWidgetIcon, inbloxMe } from '../../assets/images';
 
+const { ROPSTEN_ETHERSCAN_URL, ETHERSCAN_LOGO_URL } = require('../../../config');
+
 export function transactionSuccess(transactionHash) {
   return `
   <div class="widget-modal-content active" id="transaction-success">
@@ -16,9 +18,9 @@ export function transactionSuccess(transactionHash) {
 
       <label class="ether-scan">
         <span>
-          <img src="https://etherscan.io/images/logo-ether.png" alt="ether-scan" class="ether-scan-logo">
+          <img src=${ETHERSCAN_LOGO_URL} alt="ether-scan" class="ether-scan-logo">
         </span>
-        Check your transaction on <a href="https://ropsten.etherscan.io/tx/${transactionHash}" target="_blank">here</a>
+        Check your transaction on <a href="${ROPSTEN_ETHERSCAN_URL}/${transactionHash}" target="_blank">here</a>
       </label>
     </div>
     <div class="widget-modal-footer">

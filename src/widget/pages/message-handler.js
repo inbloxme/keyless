@@ -1,5 +1,7 @@
 import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
 
+import { ROPSTEN_ETHERSCAN_URL } from '../../config';
+
 export function messageHandlerModal(message, transactionHash = null) {
   return `
   <div class="widget-modal-content active" id="message-handler-modal">
@@ -20,7 +22,7 @@ export function messageHandlerModal(message, transactionHash = null) {
   transactionHash && transactionHash != undefined && transactionHash != ''
     ? `
       <label class="ether-scan">
-        Check your transaction on <a href="https://ropsten.etherscan.io/tx/${transactionHash}" target="_blank"><img src="https://etherscan.io/images/logo-ether.png" alt="ether-scan" class="ether-scan-logo"></a>
+      Check your transaction on <a href="${ROPSTEN_ETHERSCAN_URL}/${transactionHash}" target="_blank"><img src="https://etherscan.io/images/logo-ether.png" alt="ether-scan" class="ether-scan-logo"></a>
       </label>
       `
     : ''

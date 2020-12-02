@@ -149,8 +149,8 @@ export function closeModal(widgetInstance, initMethod = 'useractivity') {
     eventName: 'KEYLESS_WIDGET_CLOSED',
     initMethod: widgetInstance.initMethod,
     data: {
-      message: KEYLESS_WIDGET_CLOSED
-    }
+      message: KEYLESS_WIDGET_CLOSED,
+    },
   });
 }
 

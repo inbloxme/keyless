@@ -1,14 +1,16 @@
-import { inbloxWidgetIcon, inbloxMe } from '../../assets/images';
+import { inbloxWidgetIcon, inbloxMe, closeIcon } from '../../assets/images';
 
-import { loader } from '../loader';
+import { loader } from '../loaders/loader';
 
 import { hideLoader } from '../../utils/ui-helper';
+
+import { SIGN_TRANSACTION_SUCCESSFUL } from '../../../constants/responses';
 
 export function signTransactionModal(currentUser) {
   return `
   <div class="widget-modal-content ${
-  currentUser ? 'active' : ''
-}" id="sign-transaction">
+    currentUser ? 'active' : ''
+  }" id="sign-transaction">
     ${loader()}
     <div class="widget-modal-header">
       ${inbloxWidgetIcon}
@@ -24,10 +26,11 @@ export function signTransactionModal(currentUser) {
     <div class="widget-modal-form">
       <div class="widget-modal-input">
         <label>Enter Password</label>
-        <input type="password" id="sign-tranx-user-password" class="lg">
+        <input type="password" id="sign-tranx-user-password">
       </div>
       <div class="widget-modal-input">
         <span id="error-message"></span>
+        <span id="sign-success-message"></span>
       </div>
     </div>
     <div class="widget-modal-button">
@@ -43,6 +46,12 @@ export function signTransactionModal(currentUser) {
         </a>
       </p>
     </div>
+
+    <div class="close-button">
+      <button id="close-icon" type="button">
+        ${closeIcon}
+      </button>
+    </div>
   </div>`;
 }
 
@@ -50,19 +59,26 @@ export function signTransactionModal(currentUser) {
 export async function signTransaction(keylessInstance, transactionData) {
   const userPassword = document.getElementById('sign-tranx-user-password')
     .value;
-  const tranxDetails = { ...transactionData, password: userPassword };
+  const tranxDetails = Object.assign({}, transactionData, {
+    password: userPassword
+  });
 
   const signTranxResponse = await keylessInstance.signTransaction(tranxDetails);
-
   hideLoader();
   if (signTranxResponse.error) {
-    document.getElementById('error-message').innerHTML = signTranxResponse.error;
+    document.getElementById('sign-tranx-button').disabled = false;
+    document.getElementById('sign-success-message').style.display = 'none';
+    document.getElementById('error-message').innerHTML =
+      signTranxResponse.error;
     document.getElementById('error-message').style.display = 'block';
-
     return { status: false };
-  } if (signTranxResponse.response) {
+  } else if (signTranxResponse.response) {
+    document.getElementById('sign-tranx-button').disabled = true;
+    document.getElementById(
+      'sign-success-message'
+    ).innerHTML = SIGN_TRANSACTION_SUCCESSFUL;
+    document.getElementById('sign-success-message').style.display = 'block';
     document.getElementById('error-message').style.display = 'none';
-
     return { status: true, hash: signTranxResponse.response };
   }
 }
