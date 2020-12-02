@@ -18,9 +18,6 @@ import { loginModal, transactionDetailsConfirmation } from './pages';
 import { login } from './pages/login';
 import { signTransaction } from './pages/transactions/sign-transaction';
 import { signAndSendTransaction } from './pages/transactions/sign-and-send-transaction';
-import { resetPassword } from './pages/reset-password';
-import { changePasswordWithPrivateKey } from './pages/change-password/change-password';
-import { validateOldPassword } from './pages/change-password/validate-old-password';
 
 const inbloxSDK = require('..');
 
@@ -174,12 +171,7 @@ export class Widget {
   initOnClickEvents() {
     // Onclick handler for Login modal.
     if (this.activeTabIdName === 'login') {
-      const forgetPassword = document.getElementById('forgot-password-link');
       const loginButton = document.getElementById('login-button');
-
-      forgetPassword.onclick = () => {
-        this.setActiveTab('reset-password');
-      };
 
       loginButton.onclick = async () => {
         const userEmail = document.getElementById('widget-user-email').value;
@@ -311,174 +303,6 @@ export class Widget {
               message: 'Transaction failed',
             },
           });
-        }
-      };
-    }
-
-    // Onclick handler for Forgot password modal.
-    if (this.activeTabIdName === 'forgot-password') {
-      const changePasswordButton = document.getElementById('change-password-button');
-      const resetPasswordButton = document.getElementById('reset-password-button');
-
-      changePasswordButton.onclick = () => {
-        this.setActiveTab('validate-old-password');
-      };
-
-      resetPasswordButton.onclick = () => {
-        this.setActiveTab('reset-password');
-      };
-    }
-
-    // Onclick handler for change password modal.
-    if (this.activeTabIdName === 'validate-old-password') {
-      const validateOldPasswordButton = document.getElementById('validate-old-password-button');
-
-      validateOldPasswordButton.onclick = async () => {
-        showLoader();
-        const validateOldPassRes = await validateOldPassword(this.inbloxKeyless);
-
-        if (validateOldPassRes.status === true) {
-          this.privatKey = validateOldPassRes.privatKey;
-          this.oldPassword = validateOldPassRes.oldPassword;
-          this.setActiveTab('change-password');
-        }
-      };
-    }
-
-    // Onclick handler for change password modal.
-    if (this.activeTabIdName === 'change-password') {
-      const submitChangedPasswordButton = document.getElementById('submit-changed-password');
-
-      submitChangedPasswordButton.onclick = async () => {
-        showLoader();
-        const changedPassword = await changePasswordWithPrivateKey(
-          this.inbloxKeyless,
-          this.privatKey,
-          this.oldPassword
-        );
-
-        if (changedPassword === true) {
-          this.setActiveTab('change-password-success');
-        } else if (changedPassword === false) {
-          this.setActiveTab('change-password-failure');
-        }
-      };
-    }
-
-    // Onclick handler for change password success modal.
-    if (this.activeTabIdName === 'change-password-success') {
-      const signInButton = document.getElementById('sign-in-button');
-
-      signInButton.onclick = async () => {
-        this.setActiveTab('login', { currentUser: true });
-      };
-    }
-
-    // Onclick handler for change password failure modal.
-    if (this.activeTabIdName === 'change-password-failure') {
-      const retryButton = document.getElementById('retry-change-password');
-
-      retryButton.onclick = async () => {
-        this.setActiveTab('change-password');
-      };
-    }
-
-    // Onclick handler for reset password modal.
-    if (this.activeTabIdName === 'reset-password') {
-      const selectResetButton = document.getElementById('reset-option-selected');
-
-      selectResetButton.onclick = () => {
-        const resetPasswordOption = document.querySelector(
-          'input[name="reset-password-by"]:checked'
-        ).value;
-
-        this.setActiveTab(resetPasswordOption);
-      };
-    }
-
-    // Onclick handler for reset password using seed.
-    if (this.activeTabIdName === 'reset-password-seed') {
-      const submitSeedButton = document.getElementById('submit-seed');
-
-      submitSeedButton.onclick = async () => {
-        const seedPhrases = [];
-
-        for (let i = 1; i < 12; i++) {
-          seedPhrases.push(
-            document.querySelector(`input[name="seed-${i}"]`).value
-          );
-        }
-        const resetOptions = {
-          seedPhrase: seedPhrases.join(' '),
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
-        }
-      };
-    }
-
-    // Onclick handler for reset password using private key.
-    if (this.activeTabIdName === 'reset-password-private-key') {
-      const submitPrivateKeyButton = document.getElementById('submit-private-key');
-
-      submitPrivateKeyButton.onclick = async () => {
-        const privatKey = document.getElementById('private-key').value;
-        const resetOptions = {
-          privateKey: privatKey,
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
-        }
-      };
-    }
-
-    // Onclick handler for reset password using key store.
-    if (this.activeTabIdName === 'reset-password-upload-key-store') {
-      const keyStoreFile = document.getElementById('key-store-file');
-
-      keyStoreFile.onchange = async () => {
-        const updateEncryptedJsonAndProceed = (encryptedJson) => {
-          document.getElementById('show-uploading-message').style.display = 'none';
-          document.getElementById('show-uploaded-message').style.display = 'block';
-          this.encryptedJson = encryptedJson;
-          this.setActiveTab('reset-password-phrase');
-        };
-
-        document.getElementById('show-uploading-message').style.display = 'block';
-        const file = keyStoreFile.files[0];
-        const fileread = new FileReader();
-
-        fileread.onload = function (e) {
-          updateEncryptedJsonAndProceed(JSON.parse(e.target.result));
-        };
-        fileread.readAsText(file);
-      };
-    }
-
-    // Onclick handler for reset password using key store with phrase.
-    if (this.activeTabIdName === 'reset-password-phrase') {
-      const submitKeyStoreButton = document.getElementById('submit-key-store');
-
-      submitKeyStoreButton.onclick = async () => {
-        const walletPassword = document.getElementById('key-store-phrase').value;
-        const resetOptions = {
-          encryptedJson: this.encryptedJson,
-          walletPassword,
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
         }
       };
     }

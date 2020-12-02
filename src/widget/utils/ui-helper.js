@@ -3,20 +3,9 @@
 import { exportCss } from '../assets/css';
 import {
   loginModal,
-  forgotPassword,
   signTransactionModal,
   signAndSendTransactionModal,
   transactionSuccess,
-  changePasswordModal,
-  changePasswordFailureModal,
-  changePasswordSuccessModal,
-  resetPasswordModal,
-  resetPasswordPhrase,
-  resetPasswordPrivateKey,
-  resetPasswordSeed,
-  resetPasswordUploadKeyStore,
-  resetPasswordSuccessful,
-  validateOldPasswordModal,
   transactionDetailsConfirmation,
   messageHandlerModal,
 } from '../pages';
@@ -36,9 +25,6 @@ export function getActiveTabModal(activeId, options) {
         options.transactionHash
       );
       break;
-    case 'forgot-password':
-      activeTabModal = forgotPassword();
-      break;
     case 'sign-transaction':
       activeTabModal = signTransactionModal(options.currentUser);
       break;
@@ -50,36 +36,6 @@ export function getActiveTabModal(activeId, options) {
       break;
     case 'transaction-success':
       activeTabModal = transactionSuccess(options.transactionHash);
-      break;
-    case 'validate-old-password':
-      activeTabModal = validateOldPasswordModal();
-      break;
-    case 'change-password':
-      activeTabModal = changePasswordModal();
-      break;
-    case 'change-password-failure':
-      activeTabModal = changePasswordFailureModal();
-      break;
-    case 'change-password-success':
-      activeTabModal = changePasswordSuccessModal();
-      break;
-    case 'reset-password':
-      activeTabModal = resetPasswordModal();
-      break;
-    case 'reset-password-phrase':
-      activeTabModal = resetPasswordPhrase();
-      break;
-    case 'reset-password-private-key':
-      activeTabModal = resetPasswordPrivateKey();
-      break;
-    case 'reset-password-seed':
-      activeTabModal = resetPasswordSeed();
-      break;
-    case 'reset-password-upload-key-store':
-      activeTabModal = resetPasswordUploadKeyStore();
-      break;
-    case 'reset-password-success':
-      activeTabModal = resetPasswordSuccessful();
       break;
     default:
       activeTabModal = loginModal();
