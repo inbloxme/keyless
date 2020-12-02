@@ -1,8 +1,8 @@
 import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
 
-import { loader } from './loader';
+import { loader } from './loaders/loader';
 
-import { hideLoader, setUserToken } from '../utils';
+import { hideLoader } from '../utils';
 
 export function loginModal() {
   return `
@@ -28,17 +28,6 @@ export function loginModal() {
       <div class="widget-modal-input">
         <span id="error-message"></span>
       </div>
-      <div class="widget-modal-input widget-modal-flex">
-        <div class="widget-modal-checkbox">
-          <label>
-            <input type="checkbox" id="remember-me" />
-            <span>Remember Me</span>
-          </label>
-        </div>
-        <div class="widget-modal-forgot-link">
-          <span id="forgot-password-link">Forgot Password?</span>
-        </div>
-      </div>
     </div>
     <!-- Button -->
     <div class="widget-modal-button">
@@ -48,13 +37,13 @@ export function loginModal() {
     </div>
     <!-- Links -->
     <div class="widget-modal-link">
-      <p>Don’t have an account? <a href="https://app.inblox.me/">Sign Up here</a></p>
+      <p>Don’t have an account? <a href="https://test-app.inblox.me/register" target="_blank">Sign Up here</a></p>
     </div>
     <!-- Footer -->
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/">
+        <a href="https://inblox.me/" target="_blank">
           ${inbloxMe}
         </a>
       </p>
@@ -72,7 +61,6 @@ export function loginModal() {
 export async function login(keylessInstance) {
   const userEmail = document.getElementById('widget-user-email').value;
   const userPassword = document.getElementById('widget-user-password').value;
-  const rememberMe = document.getElementById('remember-me').checked;
 
   const userDetails = {
     userName: userEmail,
@@ -86,14 +74,9 @@ export async function login(keylessInstance) {
   if (loginResponse.error) {
     document.getElementById('error-message').innerHTML = loginResponse.error;
     document.getElementById('error-message').style.display = 'block';
-
     return { status: false };
-  } if (loginResponse.response) {
+  } else if (loginResponse.response) {
     document.getElementById('error-message').style.display = 'none';
-    if (rememberMe) {
-      setUserToken(loginResponse.response.token);
-    }
-
     return { status: true, data: loginResponse.response };
   }
 }

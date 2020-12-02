@@ -31,7 +31,7 @@ export function transactionDetailsConfirmation(transactionData) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/">
+        <a href="https://inblox.me/" target="_blank">
           ${inbloxMe}
         </a>
       </p>

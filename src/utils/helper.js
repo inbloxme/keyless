@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cryptojs = require('crypto-js');
 
-const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD } = require('../config');
+const { AUTH_SERVICE_URL_DEV, AUTH_SERVICE_URL_PROD, AUTH_SERVICE_URL_TEST } = require('../config');
 const {
   WRONG_PASSWORD, INVALID_ENV,
 } = require('../constants/responses');
@@ -11,6 +11,8 @@ const Instance = require('../index');
 async function getBaseURL(env) {
   if (env === 'dev') {
     return { response: AUTH_SERVICE_URL_DEV };
+  } if (env === 'test') {
+    return { response: AUTH_SERVICE_URL_TEST };
   } if (env === undefined || env === 'prod') {
     return { response: AUTH_SERVICE_URL_PROD };
   }
@@ -112,19 +114,6 @@ async function getRequest({ url, authToken }) {
   }
 }
 
-async function getReq({ url }) {
-  try {
-    const response = await axios({
-      url,
-      method: 'GET',
-    });
-
-    return { response: response.data };
-  } catch (error) {
-    return { error };
-  }
-}
-
 async function encryptKey({ privateKey, password }) {
   const encryptedPrivateKey = cryptojs.AES.encrypt(privateKey, password);
   const encryptedPrivateKeyString = encryptedPrivateKey.toString();
@@ -215,7 +204,6 @@ async function verifyPublicAddress({ address, authToken, env }) {
 
 module.exports = {
   postRequest,
-  getReq,
   encryptKey,
   decryptKey,
   updatePasswordAndPrivateKey,

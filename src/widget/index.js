@@ -1,5 +1,3 @@
-/* eslint-disable comma-dangle */
-/* eslint-disable import/no-cycle */
 import events from 'events';
 
 import {
@@ -13,18 +11,26 @@ import {
   closeModal,
 } from './utils';
 
+import { showModalLoader, hideModalLoader } from './utils/ui-helper';
 import { loginModal, transactionDetailsConfirmation } from './pages';
 
 import { login } from './pages/login';
 import { signTransaction } from './pages/transactions/sign-transaction';
 import { signAndSendTransaction } from './pages/transactions/sign-and-send-transaction';
-import { resetPassword } from './pages/reset-password';
-import { changePasswordWithPrivateKey } from './pages/change-password/change-password';
-import { validateOldPassword } from './pages/change-password/validate-old-password';
 
 const inbloxSDK = require('..');
+const { DEFAULT_GAS_LIMIT } = require('../config');
 
-export const eventEmitter = new events.EventEmitter();
+const { DEFAULT_GAS_LIMIT } = require('../config');
+
+const {
+  USER_NOT_LOGGED_IN,
+  USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION,
+  INVALID_USERNAME_OR_PASSWORD,
+  SIGN_TRANSACTION_FAILED,
+  SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+  SIGN_AND_SEND_TRANSACTION_FAILED,
+} = require('../constants/responses');
 
 export class Widget {
   constructor({ env, rpcURL }) {
@@ -32,7 +38,7 @@ export class Widget {
 
     this.inbloxKeyless = new inbloxSDK.Keyless({
       rpcURL,
-      env
+      env,
     });
     this.inbloxKeyless.authToken = token || '';
     this.handleName = '';
@@ -44,7 +50,7 @@ export class Widget {
     this.activeTab = loginModal();
     this.transactionData = {};
     this.oldPassword = '';
-    this.privatKey = '';
+    this.privateKey = '';
     this.initMethod = '';
 
     this.isInitialised = false;
@@ -52,14 +58,16 @@ export class Widget {
     this.ALL_EVENTS = '*';
     this.ERROR = 'KEYLESS_ERROR';
     this.INITIALISED_EVENTS = [];
+    this.eventEmitter = new events.EventEmitter();
   }
+
 
   getUserData() {
     if (this.isUserLoggedIn) {
       return { publicAddress: this.publicAddress, handleName: this.handleName };
     }
 
-    return { error: 'User not logged in' };
+    return { error: USER_NOT_LOGGED_IN };
   }
 
   getSignedData() {
@@ -67,13 +75,38 @@ export class Widget {
       return { signedTransaction: this.signedTransaction };
     }
 
-    return { error: 'User not logged in or not signed transaction' };
+    return { error: USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION };
   }
 
   getGasFeeAndValue(feeDetails, valueDetails) {
     return this.inbloxKeyless.convertToEth(feeDetails).then((gasFee) => this.inbloxKeyless
       .convertToEth(valueDetails)
       .then((valueInEth) => ({ gasFee, valueInEth })));
+  }
+
+  async prepareFeeAndValue(userValue, userGasPrice, userGasLimit) {
+    let gasPrice;
+
+    if (userGasPrice != undefined) {
+      gasPrice = userGasPrice;
+    } else {
+      gasPrice = await this.inbloxKeyless.web3.eth.getGasPrice();
+    }
+
+    const gasLimit = userGasLimit || DEFAULT_GAS_LIMIT;
+    const fee = gasPrice * gasLimit;
+
+    const feeDetails = {
+      srcUnit: 'wei',
+      amount: fee.toString(),
+    };
+
+    const valueDetails = {
+      srcUnit: 'wei',
+      amount: userValue.toString(),
+    };
+
+    return { valueDetails, feeDetails };
   }
 
   initLogin() {
@@ -91,95 +124,86 @@ export class Widget {
   initSignTransaction({
     to, value, gasPrice, gasLimit, data,
   }) {
+    showModalLoader();
     this.initMethod = 'sign-transaction';
-    const fee = gasPrice * gasLimit;
-    const feeDetails = {
-      srcUnit: 'wei',
-      amount: fee.toString(),
-    };
-    const valueDetails = {
-      srcUnit: 'wei',
-      amount: value.toString(),
-    };
 
-    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
-      const { gasFee } = res;
-      const { valueInEth } = res;
+    this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
+      this.getGasFeeAndValue(
+        feeAndValue.feeDetails,
+        feeAndValue.valueDetails,
+      ).then((res) => {
+        const { gasFee } = res;
+        const { valueInEth } = res;
 
-      this.transactionData = {
-        to,
-        valueInEth,
-        value,
-        gasPrice,
-        gasLimit,
-        data,
-        gasFee,
-      };
+        this.transactionData = {
+          to,
+          valueInEth,
+          value,
+          gasPrice,
+          gasLimit,
+          data,
+          gasFee,
+        };
 
-      getAuthTab(
-        this,
-        () => transactionDetailsConfirmation(this.transactionData),
-        'transaction-details-confirmation'
-      );
+        getAuthTab(
+          this,
+          () => transactionDetailsConfirmation(this.transactionData),
+          'transaction-details-confirmation',
+        );
 
-      try {
-        generateModal(this);
-      } catch (error) {
-        throw error;
-      }
+        try {
+          hideModalLoader();
+          generateModal(this);
+        } catch (error) {
+          throw error;
+        }
+      });
     });
   }
 
   initSendTransaction({
     to, value, gasPrice, gasLimit, data,
   }) {
+    showModalLoader();
     this.initMethod = 'sign-and-send-transaction';
-    const fee = gasPrice * gasLimit;
-    const feeDetails = {
-      srcUnit: 'wei',
-      amount: fee.toString(),
-    };
-    const valueDetails = {
-      srcUnit: 'wei',
-      amount: value.toString(),
-    };
 
-    this.getGasFeeAndValue(feeDetails, valueDetails).then((res) => {
-      const { gasFee } = res;
-      const { valueInEth } = res;
+    this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
+      this.getGasFeeAndValue(
+        feeAndValue.feeDetails,
+        feeAndValue.valueDetails,
+      ).then((res) => {
+        const { gasFee } = res;
+        const { valueInEth } = res;
 
-      this.transactionData = {
-        to,
-        valueInEth,
-        value,
-        gasPrice,
-        gasLimit,
-        data,
-        gasFee,
-      };
-      getAuthTab(
-        this,
-        () => transactionDetailsConfirmation(this.transactionData),
-        'transaction-details-confirmation'
-      );
+        this.transactionData = {
+          to,
+          valueInEth,
+          value,
+          gasPrice,
+          gasLimit,
+          data,
+          gasFee,
+        };
+        getAuthTab(
+          this,
+          () => transactionDetailsConfirmation(this.transactionData),
+          'transaction-details-confirmation',
+        );
 
-      try {
-        generateModal(this);
-      } catch (error) {
-        throw error;
-      }
+        try {
+          hideModalLoader();
+          generateModal(this);
+        } catch (error) {
+          throw error;
+        }
+      });
     });
   }
 
   initOnClickEvents() {
     // Onclick handler for Login modal.
     if (this.activeTabIdName === 'login') {
-      const forgetPassword = document.getElementById('forgot-password-link');
       const loginButton = document.getElementById('login-button');
-
-      forgetPassword.onclick = () => {
-        this.setActiveTab('reset-password');
-      };
 
       loginButton.onclick = async () => {
         const userEmail = document.getElementById('widget-user-email').value;
@@ -201,7 +225,7 @@ export class Widget {
             this.handleName = userData.handleName;
             this.publicAddress = userData.publicAddress;
 
-            eventEmitter.emit(this.EVENTS.LOGIN_SUCCESS, {
+            this.eventEmitter.emit(this.EVENTS.LOGIN_SUCCESS, {
               status: true,
               eventName: this.EVENTS.LOGIN_SUCCESS,
               data: {
@@ -209,13 +233,13 @@ export class Widget {
                 publicAddress: userData.publicAddress,
               },
             });
-            closeModal(this.initMethod);
+            closeModal(this, this.initMethod);
           } else {
-            eventEmitter.emit(this.EVENTS.LOGIN_FAILURE, {
+            this.eventEmitter.emit(this.EVENTS.LOGIN_FAILURE, {
               status: false,
               eventName: this.EVENTS.LOGIN_FAILURE,
               data: {
-                message: 'Either username or password is not valid',
+                message: INVALID_USERNAME_OR_PASSWORD,
               },
             });
           }
@@ -231,7 +255,7 @@ export class Widget {
       const okButton = document.getElementById('ok-button');
 
       okButton.onclick = () => {
-        closeModal(this.initMethod);
+        closeModal(this, this.initMethod);
       };
     }
 
@@ -256,19 +280,19 @@ export class Widget {
 
         if (signedTx.status) {
           this.signedTransaction = signedTx.hash;
-          eventEmitter.emit(this.EVENTS.TRANSACTION_SUCCESSFUL, {
+          this.eventEmitter.emit(this.EVENTS.SIGN_TRANSACTION_SUCCESSFUL, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
+            eventName: this.EVENTS.SIGN_TRANSACTION_SUCCESSFUL,
             data: {
-              transactionHash: signedTx.hash,
+              signedData: signedTx.hash,
             },
           });
-        } else {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
+        }  else {
+          this.eventEmitter.emit(this.EVENTS.SIGN_TRANSACTION_FAILED, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_FAILED,
+            eventName: this.EVENTS.SIGN_TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed',
+              message: SIGN_TRANSACTION_FAILED,
             },
           });
         }
@@ -292,193 +316,28 @@ export class Widget {
         const sentAndSignedTranx = await signAndSendTransaction(this.inbloxKeyless, this.transactionData);
 
         if (sentAndSignedTranx.status === true) {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_SUCCESSFUL, {
-            status: true,
-            eventName: this.EVENTS.TRANSACTION_SUCCESSFUL,
-            data: {
-              transactionHash: sentAndSignedTranx.hash,
+          this.eventEmitter.emit(
+            this.EVENTS.SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+            {
+              status: true,
+              eventName: this.EVENTS.SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
+              data: {
+                transactionHash: sentAndSignedTranx.hash,
+              },
             },
-          });
+          );
           this.setActiveTab('message-handler-modal', {
-            message: 'Transaction Successful',
+            message: SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
             transactionHash: sentAndSignedTranx.hash,
           });
         } else {
-          eventEmitter.emit(this.EVENTS.TRANSACTION_FAILED, {
+          this.eventEmitter.emit(this.EVENTS.SIGN_AND_SEND_TRANSACTION_FAILED, {
             status: true,
-            eventName: this.EVENTS.TRANSACTION_FAILED,
+            eventName: this.EVENTS.SIGN_AND_SEND_TRANSACTION_FAILED,
             data: {
-              message: 'Transaction failed',
+              message: SIGN_AND_SEND_TRANSACTION_FAILED,
             },
           });
-        }
-      };
-    }
-
-    // Onclick handler for Forgot password modal.
-    if (this.activeTabIdName === 'forgot-password') {
-      const changePasswordButton = document.getElementById('change-password-button');
-      const resetPasswordButton = document.getElementById('reset-password-button');
-
-      changePasswordButton.onclick = () => {
-        this.setActiveTab('validate-old-password');
-      };
-
-      resetPasswordButton.onclick = () => {
-        this.setActiveTab('reset-password');
-      };
-    }
-
-    // Onclick handler for change password modal.
-    if (this.activeTabIdName === 'validate-old-password') {
-      const validateOldPasswordButton = document.getElementById('validate-old-password-button');
-
-      validateOldPasswordButton.onclick = async () => {
-        showLoader();
-        const validateOldPassRes = await validateOldPassword(this.inbloxKeyless);
-
-        if (validateOldPassRes.status === true) {
-          this.privatKey = validateOldPassRes.privatKey;
-          this.oldPassword = validateOldPassRes.oldPassword;
-          this.setActiveTab('change-password');
-        }
-      };
-    }
-
-    // Onclick handler for change password modal.
-    if (this.activeTabIdName === 'change-password') {
-      const submitChangedPasswordButton = document.getElementById('submit-changed-password');
-
-      submitChangedPasswordButton.onclick = async () => {
-        showLoader();
-        const changedPassword = await changePasswordWithPrivateKey(
-          this.inbloxKeyless,
-          this.privatKey,
-          this.oldPassword
-        );
-
-        if (changedPassword === true) {
-          this.setActiveTab('change-password-success');
-        } else if (changedPassword === false) {
-          this.setActiveTab('change-password-failure');
-        }
-      };
-    }
-
-    // Onclick handler for change password success modal.
-    if (this.activeTabIdName === 'change-password-success') {
-      const signInButton = document.getElementById('sign-in-button');
-
-      signInButton.onclick = async () => {
-        this.setActiveTab('login', { currentUser: true });
-      };
-    }
-
-    // Onclick handler for change password failure modal.
-    if (this.activeTabIdName === 'change-password-failure') {
-      const retryButton = document.getElementById('retry-change-password');
-
-      retryButton.onclick = async () => {
-        this.setActiveTab('change-password');
-      };
-    }
-
-    // Onclick handler for reset password modal.
-    if (this.activeTabIdName === 'reset-password') {
-      const selectResetButton = document.getElementById('reset-option-selected');
-
-      selectResetButton.onclick = () => {
-        const resetPasswordOption = document.querySelector(
-          'input[name="reset-password-by"]:checked'
-        ).value;
-
-        this.setActiveTab(resetPasswordOption);
-      };
-    }
-
-    // Onclick handler for reset password using seed.
-    if (this.activeTabIdName === 'reset-password-seed') {
-      const submitSeedButton = document.getElementById('submit-seed');
-
-      submitSeedButton.onclick = async () => {
-        const seedPhrases = [];
-
-        for (let i = 1; i < 12; i++) {
-          seedPhrases.push(
-            document.querySelector(`input[name="seed-${i}"]`).value
-          );
-        }
-        const resetOptions = {
-          seedPhrase: seedPhrases.join(' '),
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
-        }
-      };
-    }
-
-    // Onclick handler for reset password using private key.
-    if (this.activeTabIdName === 'reset-password-private-key') {
-      const submitPrivateKeyButton = document.getElementById('submit-private-key');
-
-      submitPrivateKeyButton.onclick = async () => {
-        const privatKey = document.getElementById('private-key').value;
-        const resetOptions = {
-          privateKey: privatKey,
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
-        }
-      };
-    }
-
-    // Onclick handler for reset password using key store.
-    if (this.activeTabIdName === 'reset-password-upload-key-store') {
-      const keyStoreFile = document.getElementById('key-store-file');
-
-      keyStoreFile.onchange = async () => {
-        const updateEncryptedJsonAndProceed = (encryptedJson) => {
-          document.getElementById('show-uploading-message').style.display = 'none';
-          document.getElementById('show-uploaded-message').style.display = 'block';
-          this.encryptedJson = encryptedJson;
-          this.setActiveTab('reset-password-phrase');
-        };
-
-        document.getElementById('show-uploading-message').style.display = 'block';
-        const file = keyStoreFile.files[0];
-        const fileread = new FileReader();
-
-        fileread.onload = function (e) {
-          updateEncryptedJsonAndProceed(JSON.parse(e.target.result));
-        };
-        fileread.readAsText(file);
-      };
-    }
-
-    // Onclick handler for reset password using key store with phrase.
-    if (this.activeTabIdName === 'reset-password-phrase') {
-      const submitKeyStoreButton = document.getElementById('submit-key-store');
-
-      submitKeyStoreButton.onclick = async () => {
-        const walletPassword = document.getElementById('key-store-phrase').value;
-        const resetOptions = {
-          encryptedJson: this.encryptedJson,
-          walletPassword,
-        };
-
-        showLoader();
-        const resetPassswordResponse = await resetPassword(this.inbloxKeyless, resetOptions);
-
-        if (resetPassswordResponse === true) {
-          this.setActiveTab('reset-password-success');
         }
       };
     }
@@ -498,18 +357,18 @@ Widget.prototype.on = function (type, cb) {
 
       if (!this.INITIALISED_EVENTS.includes(evName)) {
         this.INITIALISED_EVENTS.push(evName);
-        eventEmitter.on(evName, cb);
+        this.eventEmitter.on(evName, cb);
       }
     }
   }
 
   if (EVENTS[type] && !this.INITIALISED_EVENTS.includes(EVENTS[type])) {
     this.INITIALISED_EVENTS.push(EVENTS[type]);
-    eventEmitter.on(type, cb);
+    this.eventEmitter.on(type, cb);
   }
 
   if (type === this.ERROR && !this.INITIALISED_EVENTS.includes(this.ERROR)) {
     this.INITIALISED_EVENTS.push(this.ERROR);
-    eventEmitter.on(this.ERROR, cb);
+    this.eventEmitter.on(this.ERROR, cb);
   }
 };
