@@ -1,8 +1,8 @@
 import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
 
-import { loader } from './loader';
+import { loader } from './loaders/loader';
 
-import { hideLoader, setUserToken } from '../utils';
+import { hideLoader } from '../utils';
 
 export function loginModal() {
   return `
@@ -37,13 +37,13 @@ export function loginModal() {
     </div>
     <!-- Links -->
     <div class="widget-modal-link">
-      <p>Don’t have an account? <a href="https://app.inblox.me/">Sign Up here</a></p>
+      <p>Don’t have an account? <a href="https://test-app.inblox.me/register" target="_blank">Sign Up here</a></p>
     </div>
     <!-- Footer -->
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/">
+        <a href="https://inblox.me/" target="_blank">
           ${inbloxMe}
         </a>
       </p>
@@ -69,7 +69,7 @@ export async function login(keylessInstance) {
 
   // Using Keyless instance methods.
   const loginResponse = await keylessInstance.getUser(userDetails);
-  
+
   hideLoader();
   if (loginResponse.error) {
     document.getElementById('error-message').innerHTML = loginResponse.error;

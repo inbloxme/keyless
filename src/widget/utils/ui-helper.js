@@ -10,9 +10,9 @@ import {
   messageHandlerModal,
 } from '../pages';
 
-const { KEYLESS_WIDGET_CLOSED } = require('../../constants/responses');
+import { ModalLoader } from '../pages/loaders/modal-loader';
 
-import { eventEmitter } from '..';
+const { KEYLESS_WIDGET_CLOSED } = require('../../constants/responses');
 
 export function getActiveTabModal(activeId, options) {
   let activeTabModal = '';
@@ -23,26 +23,27 @@ export function getActiveTabModal(activeId, options) {
       break;
     case 'message-handler-modal':
       activeTabModal = messageHandlerModal(
-        options.message,
-        options.transactionHash
+        options['message'],
+        options['transactionHash']
       );
       break;
     case 'sign-transaction':
-      activeTabModal = signTransactionModal(options.currentUser);
+      activeTabModal = signTransactionModal(options['currentUser']);
       break;
     case 'sign-and-send-transaction':
-      activeTabModal = signAndSendTransactionModal(options.currentUser);
+      activeTabModal = signAndSendTransactionModal(options['currentUser']);
       break;
     case 'transaction-details-confirmation':
-      activeTabModal = transactionDetailsConfirmation(options.transactionData);
+      activeTabModal = transactionDetailsConfirmation(
+        options['transactionData']
+      );
       break;
     case 'transaction-success':
-      activeTabModal = transactionSuccess(options.transactionHash);
+      activeTabModal = transactionSuccess(options['transactionHash']);
       break;
     default:
       activeTabModal = loginModal();
   }
-
   return activeTabModal;
 }
 
@@ -64,7 +65,7 @@ export async function generateModal(widgetInstance) {
   const inbloxKeylessWidget = document.getElementById('inbloxKeylessWidget');
 
   const style = await document.createElement('style');
-
+  
   style.innerHTML = exportCss();
   if (inbloxKeylessWidget) await inbloxKeylessWidget.appendChild(style);
 
@@ -78,58 +79,93 @@ export async function generateModal(widgetInstance) {
 
   if (!widgetInstance.isInitialised) {
     widgetInstance.isInitialised = true;
-    eventEmitter.emit(widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED, {
-      status: true,
-      eventName: widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED,
-    });
+    widgetInstance.eventEmitter.emit(
+      widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED,
+      {
+        status: true,
+        eventName: widgetInstance.EVENTS.KEYLESS_WIDGET_INITIALISED
+      }
+    );
   }
 
-  initCloseEvents();
+  initCloseEvents(widgetInstance);
   widgetInstance.initOnClickEvents();
 }
 
 export function showLoader() {
   const loader = document.getElementById('loader');
-
   loader.style.display = 'block';
 }
 
 export function hideLoader() {
   const loader = document.getElementById('loader');
-
   loader.style.display = 'none';
 }
 
-export function closeModal(initMethod = 'useractivity') {
+export async function showModalLoader() {
+  let loaderWrapper = document.getElementById('keylessWidgetModalLoader');
+  if (loaderWrapper == null) {
+    loaderWrapper = document.createElement('div');
+    loaderWrapper.id = 'keylessWidgetModalLoader';
+  }
+  loaderWrapper.innerHTML = ModalLoader();
+
+  let container = document.getElementsByTagName('body');
+  if (!container) container = document.getElementsByTagName('html');
+  if (!container) container = document.getElementsByTagName('div');
+  await container[0].appendChild(loaderWrapper);
+
+  let widgetModalLoader = document.getElementById('keylessWidgetModalLoader');
+
+  let style = await document.createElement('style');
+  style.innerHTML = exportCss();
+  if (widgetModalLoader) await widgetModalLoader.appendChild(style);
+
+  //Prevent background scrolling when overlay appears
+  document.documentElement.style.overflow = 'hidden';
+  document.body.scroll = 'no';
+
+  if (widgetModalLoader && widgetModalLoader.style) {
+    widgetModalLoader.style.display = 'block';
+  }
+}
+
+export function hideModalLoader() {
+  //Enable background scrolling when overlay removed
+  document.documentElement.style.overflow = 'auto';
+  document.body.scroll = 'yes';
+  document.getElementById('keylessWidgetModalLoader').remove();
+  return;
+}
+
+export function closeModal(widgetInstance, initMethod = 'useractivity') {
   // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'auto';
   document.body.scroll = 'yes';
   document.getElementById('inbloxKeylessWidget').remove();
 
-  eventEmitter.emit('KEYLESS_WIDGET_CLOSED', {
+  widgetInstance.eventEmitter.emit('KEYLESS_WIDGET_CLOSED', {
     status: true,
     eventName: 'KEYLESS_WIDGET_CLOSED',
-    initMethod,
+    initMethod: widgetInstance.initMethod,
     data: {
       message: KEYLESS_WIDGET_CLOSED,
     },
   });
 }
 
-function initCloseEvents() {
+function initCloseEvents(widgetInstance) {
   const closeIcon = document.getElementById('close-icon');
   // When the user clicks on close icon (x), close the modal
-
   closeIcon.onclick = () => {
-    closeModal();
+    closeModal(widgetInstance);
   };
 
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = (event) => {
     const customModal = document.getElementById('inbloxKeylessWidget');
-
     if (customModal && event.target === customModal) {
-      closeModal();
+      closeModal(widgetInstance);
     }
   };
 }

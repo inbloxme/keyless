@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 export function exportCss() {
   return `body {
     font-family: 'Poppins', sans-serif !important;
@@ -51,12 +50,15 @@ export function exportCss() {
     color: #707070;
     font-size: 10px;
     line-height: 25px;
+    display: flex;
+    justify-content: center;
   }
   .widget-modal-footer p a {
     color: #1f4788;
+    margin-left: 5px;
   }
-  .widget-modal-footer p a svg{
-    width:60px;
+  .widget-modal-footer p a svg {
+    width: 60px;
   }
   .widget-modal-button {
     text-align: center;
@@ -90,7 +92,7 @@ export function exportCss() {
     padding: 0.44rem 0.75rem;
     font-size: 13px;
     line-height: 1.5;
-    color: #a0a0a0;
+    color: #6f6f6f;
     background-color: #fff;
     border: 1px solid #d1d3e2;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -275,7 +277,7 @@ export function exportCss() {
     cursor: pointer;
   }
   #key-store-file {
-    visibility:hidden;
+    visibility: hidden;
   }
   .forgot-password-rsps-card span {
     vertical-align: -webkit-baseline-middle;
@@ -283,6 +285,10 @@ export function exportCss() {
   #error-message {
     font-size: 11px;
     color: red;
+  }
+  #sign-success-message {
+    font-size: 11px;
+    color: green;
   }
   .ether-scan-logo {
     width: 30%;
@@ -300,6 +306,14 @@ export function exportCss() {
     padding: 3px 9px;
     cursor: pointer;
   }
+  #keylessWidgetModalLoader {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    z-index: 9;
+    top: 0;
+  }
   #inbloxKeylessWidget {
     width: 100%;
     height: 100%;
@@ -312,40 +326,17 @@ export function exportCss() {
     float: left;
     cursor: pointer;
   }
+  
   .transaction-message {
     padding-bottom: 15px;
     text-align: center;
   }
-
-
-  @media only screen and (max-width: 767px) {
-
-    .widget-modal-content{
-      width: 92%;
-      margin: 15px;
-      bottom: initial;
-      right: initial;
-      padding: 15px;
-    }
-    .widget-modal-header h1{
-      font-size:18px;
-    }
-    .widget-modal-link p{
-      font-size:14px;
-    }
-    
-  }
-  @media only screen and (max-width: 320px) {
-    .widget-modal-motes p span {
-      font-size: 11px;
-    }
-    .widget-modal-motes p label{
-      width:30%;
-    }
-  }
-
-
+  
   /* Loader CSS */
+  #modal-loader {
+    height: 490px;
+  }
+  
   #loader {
     display: none;
   }
@@ -358,7 +349,7 @@ export function exportCss() {
     top: 0;
     left: 0;
   }
-
+  
   .loader-container {
     position: relative;
     z-index: 999;
@@ -369,154 +360,36 @@ export function exportCss() {
     left: 0;
     bottom: 0;
     right: 0;
+    transform: translateY(-50%);
+    text-align: center;
   }
-
-  .progress-message {
-    padding-top: 15px;
-    font-weight: 600;
-    color: #ffffff;
+  
+  .loader-container img {
+    width: 80%;
   }
-
-  .bar {
-    width: 10px;
-    height: 2px;
-    margin-right: 4px;
-    display: inline-block;
-    background-color: #1e4788;
-  }
-
-  .progress {
-    width: 140px;
-    height: 5px;
-    display: block;
-    background-color: #1e4788;
-    position: relative;
-    top: 10px;
-    animation-name: Progress;
-    animation-duration: 800ms;
-    animation-timing-function: ease-in-out;
-    animation-delay: 0s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes Progress {
-    0% {
-      width: 0px;
+  
+  @media only screen and (max-width: 767px) {
+    .widget-modal-content {
+      width: 92%;
+      margin: 15px;
+      bottom: initial;
+      right: initial;
+      padding: 15px;
     }
-    100% {
-      width: 170px;
+    .widget-modal-header h1 {
+      font-size: 18px;
+    }
+    .widget-modal-link p {
+      font-size: 14px;
     }
   }
-  .bar1 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.03s;
-  }
-
-  .bar2 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.06s;
-  }
-
-  .bar3 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.09s;
-  }
-
-  .bar4 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.12s;
-  }
-
-  .bar5 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.15s;
-  }
-
-  .bar6 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.18s;
-  }
-
-  .bar7 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.21s;
-  }
-
-  .bar8 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.24s;
-  }
-
-  .bar9 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.27s;
-  }
-
-  .bar10 {
-    animation-name: Bar;
-    animation-duration: 800ms;
-    animation-timing-function: cubic- bezier(0.54, -0.01, 0.42, 0.99);
-    animation-iteration-count: infinite;
-    animation-direction: alternate-reverse;
-    animation-fill-mode: both;
-    animation-delay: 0.3s;
-  }
-
-  @keyframes Bar {
-    0% {
-      background-color: #1e4788;
-      transform: scaleY(0.5);
+  
+  @media only screen and (max-width: 320px) {
+    .widget-modal-motes p span {
+      font-size: 11px;
     }
-    100% {
-      transform: scaleY(10);
+    .widget-modal-motes p label {
+      width: 30%;
     }
-  }
-  `;
+  }`;
 }
