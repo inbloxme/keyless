@@ -103,3 +103,17 @@
 ##### Custom error messages.
 
 *Added custom error messages for web3 provider errors like insufficient funds, low gas limit or invalid public address.
+
+### 1.3.0 (2020-12-02)
+
+##### Features Updated
+
+*IP logging feature removed
+*Hardcoded url and error messages removed and set in constants
+*Reset and change password feature removed
+*Remember me feature removed
+*Bar loader updated to inblox.me logo loader
+*Removed redundant event listeners
+*Added separate event listeners for sign and send transaction & sign transation
+*Added condition for inblox backend test environment
+*Updated re-directions from widget
