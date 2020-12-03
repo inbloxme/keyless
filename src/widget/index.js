@@ -21,8 +21,6 @@ import { signAndSendTransaction } from './pages/transactions/sign-and-send-trans
 const inbloxSDK = require('..');
 const { DEFAULT_GAS_LIMIT } = require('../config');
 
-const { DEFAULT_GAS_LIMIT } = require('../config');
-
 const {
   USER_NOT_LOGGED_IN,
   USER_NOT_LOGGED_IN_OR_NOT_SIGNED_TRANSACTION,
