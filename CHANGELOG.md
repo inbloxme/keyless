@@ -117,3 +117,10 @@
 *Added separate event listeners for sign and send transaction & sign transation
 *Added condition for inblox backend test environment
 *Updated re-directions from widget
+
+
+### 1.3.1 (2020-12-03)
+
+##### Bugs fixed
+
+*Removed duplicate variable import

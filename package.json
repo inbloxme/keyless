@@ -1,6 +1,6 @@
 {
   "name": "@inbloxme/keyless-transactions",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "This package enables usage of inblox handlename infrastructure as a keyless signing mechanism",
   "main": "src/index.js",
   "scripts": {
