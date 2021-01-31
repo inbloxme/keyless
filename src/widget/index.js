@@ -19,7 +19,9 @@ import { signTransaction } from './pages/transactions/sign-transaction';
 import { signAndSendTransaction } from './pages/transactions/sign-and-send-transaction';
 
 const inbloxSDK = require('..');
-const { DEFAULT_GAS_LIMIT } = require('../config');
+const {
+  DEFAULT_GAS_LIMIT, ROPSTEN_ETHERSCAN_URL, RINKEBY_ETHERSCAN_URL, GOERLI_ETHERSCAN_URL, KOVAN_ETHERSCAN_URL, MAINNET_ETHERSCAN_URL,
+} = require('../config');
 
 const {
   USER_NOT_LOGGED_IN,
@@ -58,7 +60,6 @@ export class Widget {
     this.INITIALISED_EVENTS = [];
     this.eventEmitter = new events.EventEmitter();
   }
-
 
   getUserData() {
     if (this.isUserLoggedIn) {
@@ -285,7 +286,7 @@ export class Widget {
               signedData: signedTx.hash,
             },
           });
-        }  else {
+        } else {
           this.eventEmitter.emit(this.EVENTS.SIGN_TRANSACTION_FAILED, {
             status: true,
             eventName: this.EVENTS.SIGN_TRANSACTION_FAILED,
@@ -343,7 +344,24 @@ export class Widget {
 
   async setActiveTab(activeId, options = {}) {
     this.activeTabIdName = activeId;
-    this.activeTab = await getActiveTabModal(activeId, options);
+    let network;
+    let transactionUrl;
+
+    await this.inbloxKeyless.web3.eth.net.getNetworkType().then((e) => network = e);
+
+    if (network == 'main') {
+      transactionUrl = MAINNET_ETHERSCAN_URL;
+    } else if (network == 'ropsten') {
+      transactionUrl = ROPSTEN_ETHERSCAN_URL;
+    } else if (network == 'rinkeby') {
+      transactionUrl = RINKEBY_ETHERSCAN_URL;
+    } else if (network == 'kovan') {
+      transactionUrl = KOVAN_ETHERSCAN_URL;
+    } else if (network == 'goerli') {
+      transactionUrl = GOERLI_ETHERSCAN_URL;
+    }
+
+    this.activeTab = await getActiveTabModal(activeId, options, transactionUrl);
     generateModal(this);
   }
 }
