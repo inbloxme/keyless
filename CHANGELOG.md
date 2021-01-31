@@ -124,3 +124,10 @@
 ##### Bugs fixed
 
 *Removed duplicate variable import
+
+### 1.3.2 (2020-01-31)
+
+##### Dynamic Network Selection
+
+*Transaction will be sent to the network specified in the RPC URL.
+*Etherscan link on the transaction success modal will be decided according to the network type.
