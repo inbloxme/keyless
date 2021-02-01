@@ -165,7 +165,14 @@ class Keyless {
       await this.web3.eth.net.getNetworkType().then((e) => network = e);
 
       const pkey = Buffer.from(pKey, 'hex');
-      const tx = new Tx(rawTx, { chain: network });
+
+      let tx;
+
+      if (network === 'main') {
+        tx = new Tx(rawTx, { chain: 'mainnet' });
+      } else {
+        tx = new Tx(rawTx, { chain: network });
+      }
 
       tx.sign(pkey);
       const signedTx = `0x${tx.serialize().toString('hex')}`;
