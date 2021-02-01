@@ -158,7 +158,6 @@ class Keyless {
         gas: this.web3.utils.numberToHex(gasLimit) || this.web3.utils.numberToHex(DEFAULT_GAS_LIMIT),
         data: data || '0x00',
         nonce: nonce || defaultNonce,
-        chainId: 3,
       };
 
       let network;
