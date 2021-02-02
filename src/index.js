@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable class-methods-use-this */
 const ethers = require('ethers');
@@ -157,11 +158,21 @@ class Keyless {
         gas: this.web3.utils.numberToHex(gasLimit) || this.web3.utils.numberToHex(DEFAULT_GAS_LIMIT),
         data: data || '0x00',
         nonce: nonce || defaultNonce,
-        chainId: 3,
       };
 
+      let network;
+
+      await this.web3.eth.net.getNetworkType().then((e) => network = e);
+
       const pkey = Buffer.from(pKey, 'hex');
-      const tx = new Tx(rawTx, { chain: 'ropsten', hardfork: 'petersburg' });
+
+      let tx;
+
+      if (network === 'main') {
+        tx = new Tx(rawTx, { chain: 'mainnet' });
+      } else {
+        tx = new Tx(rawTx, { chain: network });
+      }
 
       tx.sign(pkey);
       const signedTx = `0x${tx.serialize().toString('hex')}`;

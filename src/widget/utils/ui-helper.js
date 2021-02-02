@@ -14,7 +14,7 @@ import { ModalLoader } from '../pages/loaders/modal-loader';
 
 const { KEYLESS_WIDGET_CLOSED } = require('../../constants/responses');
 
-export function getActiveTabModal(activeId, options) {
+export function getActiveTabModal(activeId, options, transactionUrl) {
   let activeTabModal = '';
 
   switch (activeId) {
@@ -23,27 +23,29 @@ export function getActiveTabModal(activeId, options) {
       break;
     case 'message-handler-modal':
       activeTabModal = messageHandlerModal(
-        options['message'],
-        options['transactionHash']
+        options.message,
+        options.transactionHash,
+        transactionUrl
       );
       break;
     case 'sign-transaction':
-      activeTabModal = signTransactionModal(options['currentUser']);
+      activeTabModal = signTransactionModal(options.currentUser);
       break;
     case 'sign-and-send-transaction':
-      activeTabModal = signAndSendTransactionModal(options['currentUser']);
+      activeTabModal = signAndSendTransactionModal(options.currentUser);
       break;
     case 'transaction-details-confirmation':
       activeTabModal = transactionDetailsConfirmation(
-        options['transactionData']
+        options.transactionData
       );
       break;
     case 'transaction-success':
-      activeTabModal = transactionSuccess(options['transactionHash']);
+      activeTabModal = transactionSuccess(options.transactionHash);
       break;
     default:
       activeTabModal = loginModal();
   }
+
   return activeTabModal;
 }
 
@@ -65,7 +67,7 @@ export async function generateModal(widgetInstance) {
   const inbloxKeylessWidget = document.getElementById('inbloxKeylessWidget');
 
   const style = await document.createElement('style');
-  
+
   style.innerHTML = exportCss();
   if (inbloxKeylessWidget) await inbloxKeylessWidget.appendChild(style);
 
@@ -94,16 +96,19 @@ export async function generateModal(widgetInstance) {
 
 export function showLoader() {
   const loader = document.getElementById('loader');
+
   loader.style.display = 'block';
 }
 
 export function hideLoader() {
   const loader = document.getElementById('loader');
+
   loader.style.display = 'none';
 }
 
 export async function showModalLoader() {
   let loaderWrapper = document.getElementById('keylessWidgetModalLoader');
+
   if (loaderWrapper == null) {
     loaderWrapper = document.createElement('div');
     loaderWrapper.id = 'keylessWidgetModalLoader';
@@ -111,17 +116,19 @@ export async function showModalLoader() {
   loaderWrapper.innerHTML = ModalLoader();
 
   let container = document.getElementsByTagName('body');
+
   if (!container) container = document.getElementsByTagName('html');
   if (!container) container = document.getElementsByTagName('div');
   await container[0].appendChild(loaderWrapper);
 
-  let widgetModalLoader = document.getElementById('keylessWidgetModalLoader');
+  const widgetModalLoader = document.getElementById('keylessWidgetModalLoader');
 
-  let style = await document.createElement('style');
+  const style = await document.createElement('style');
+
   style.innerHTML = exportCss();
   if (widgetModalLoader) await widgetModalLoader.appendChild(style);
 
-  //Prevent background scrolling when overlay appears
+  // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'hidden';
   document.body.scroll = 'no';
 
@@ -131,11 +138,10 @@ export async function showModalLoader() {
 }
 
 export function hideModalLoader() {
-  //Enable background scrolling when overlay removed
+  // Enable background scrolling when overlay removed
   document.documentElement.style.overflow = 'auto';
   document.body.scroll = 'yes';
   document.getElementById('keylessWidgetModalLoader').remove();
-  return;
 }
 
 export function closeModal(widgetInstance, initMethod = 'useractivity') {
@@ -157,6 +163,7 @@ export function closeModal(widgetInstance, initMethod = 'useractivity') {
 function initCloseEvents(widgetInstance) {
   const closeIcon = document.getElementById('close-icon');
   // When the user clicks on close icon (x), close the modal
+
   closeIcon.onclick = () => {
     closeModal(widgetInstance);
   };
@@ -164,6 +171,7 @@ function initCloseEvents(widgetInstance) {
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = (event) => {
     const customModal = document.getElementById('inbloxKeylessWidget');
+
     if (customModal && event.target === customModal) {
       closeModal(widgetInstance);
     }
