@@ -131,3 +131,9 @@
 
 *Transaction will be sent to the network specified in the RPC URL.
 *Etherscan link on the transaction success modal will be decided according to the network type.
+
+### 1.3.3 (2020-02-02)
+
+##### Vulnerable package update
+
+*Bumped up the axios version because of its high severity vulnerability.
