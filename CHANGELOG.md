@@ -137,3 +137,9 @@
 ##### Vulnerable package update
 
 *Bumped up the axios version because of its high severity vulnerability.
+
+### 1.3.4 (2020-02-08)
+
+##### Fix punctuation issue
+
+*Fixed the punctuation issue caused due to the use of ESLint.
