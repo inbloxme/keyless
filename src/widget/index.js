@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 import events from 'events';
 
 import {
@@ -129,7 +130,7 @@ export class Widget {
     this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
       this.getGasFeeAndValue(
         feeAndValue.feeDetails,
-        feeAndValue.valueDetails,
+        feeAndValue.valueDetails
       ).then((res) => {
         const { gasFee } = res;
         const { valueInEth } = res;
@@ -147,7 +148,7 @@ export class Widget {
         getAuthTab(
           this,
           () => transactionDetailsConfirmation(this.transactionData),
-          'transaction-details-confirmation',
+          'transaction-details-confirmation'
         );
 
         try {
@@ -169,7 +170,7 @@ export class Widget {
     this.prepareFeeAndValue(value, gasPrice, gasLimit).then((feeAndValue) => {
       this.getGasFeeAndValue(
         feeAndValue.feeDetails,
-        feeAndValue.valueDetails,
+        feeAndValue.valueDetails
       ).then((res) => {
         const { gasFee } = res;
         const { valueInEth } = res;
@@ -186,7 +187,7 @@ export class Widget {
         getAuthTab(
           this,
           () => transactionDetailsConfirmation(this.transactionData),
-          'transaction-details-confirmation',
+          'transaction-details-confirmation'
         );
 
         try {
@@ -323,7 +324,7 @@ export class Widget {
               data: {
                 transactionHash: sentAndSignedTranx.hash,
               },
-            },
+            }
           );
           this.setActiveTab('message-handler-modal', {
             message: SIGN_AND_SEND_TRANSACTION_SUCCESSFUL,
