@@ -41,7 +41,7 @@ export function signTransactionModal(currentUser) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://www.getsafle.com/" target="_blank">
+        <a href="https://getsafle.com/" target="_blank">
           ${safleLogo}
         </a>
       </p>
