@@ -143,3 +143,9 @@
 ##### Fix punctuation issue
 
 *Fixed the punctuation issue caused due to the use of ESLint.
+
+### 1.3.5 (2021-03-13)
+
+##### Updated the base URL for Auth service.
+
+*Updated the Auth service URL from inblox to safle.
