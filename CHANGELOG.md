@@ -149,3 +149,10 @@
 ##### Updated the base URL for Auth service.
 
 *Updated the Auth service URL from inblox to safle.
+
+### 1.3.6 (2021-03-15)
+
+##### Rebranding from Inblox to Safle.
+
+*Updated all the instances of Inblox to Safle.
+*Updated the widget logo and color schemes as per the new brand guidelines.

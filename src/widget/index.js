@@ -19,7 +19,7 @@ import { login } from './pages/login';
 import { signTransaction } from './pages/transactions/sign-transaction';
 import { signAndSendTransaction } from './pages/transactions/sign-and-send-transaction';
 
-const inbloxSDK = require('..');
+const safleSDK = require('..');
 const {
   DEFAULT_GAS_LIMIT, ROPSTEN_ETHERSCAN_URL, RINKEBY_ETHERSCAN_URL, GOERLI_ETHERSCAN_URL, KOVAN_ETHERSCAN_URL, MAINNET_ETHERSCAN_URL,
 } = require('../config');
@@ -37,16 +37,16 @@ export class Widget {
   constructor({ env, rpcURL }) {
     const token = getUserToken();
 
-    this.inbloxKeyless = new inbloxSDK.Keyless({
+    this.safleKeyless = new safleSDK.Keyless({
       rpcURL,
       env,
     });
-    this.inbloxKeyless.authToken = token || '';
-    this.handleName = '';
+    this.safleKeyless.authToken = token || '';
+    this.safleId = '';
     this.publicAddress = '';
     this.signedTransaction = '';
     this.encryptedJson = '';
-    this.isUserLoggedIn = whetherUserLoggedIn(this.inbloxKeyless.authToken);
+    this.isUserLoggedIn = whetherUserLoggedIn(this.safleKeyless.authToken);
     this.activeTabIdName = 'login';
     this.activeTab = loginModal();
     this.transactionData = {};
@@ -64,7 +64,7 @@ export class Widget {
 
   getUserData() {
     if (this.isUserLoggedIn) {
-      return { publicAddress: this.publicAddress, handleName: this.handleName };
+      return { publicAddress: this.publicAddress, safleId: this.safleId };
     }
 
     return { error: USER_NOT_LOGGED_IN };
@@ -79,7 +79,7 @@ export class Widget {
   }
 
   getGasFeeAndValue(feeDetails, valueDetails) {
-    return this.inbloxKeyless.convertToEth(feeDetails).then((gasFee) => this.inbloxKeyless
+    return this.safleKeyless.convertToEth(feeDetails).then((gasFee) => this.safleKeyless
       .convertToEth(valueDetails)
       .then((valueInEth) => ({ gasFee, valueInEth })));
   }
@@ -90,7 +90,7 @@ export class Widget {
     if (userGasPrice != undefined) {
       gasPrice = userGasPrice;
     } else {
-      gasPrice = await this.inbloxKeyless.web3.eth.getGasPrice();
+      gasPrice = await this.safleKeyless.web3.eth.getGasPrice();
     }
 
     const gasLimit = userGasLimit || DEFAULT_GAS_LIMIT;
@@ -216,20 +216,20 @@ export class Widget {
         if (emailPresent && passwordPresent) {
           document.getElementById('error-message').style.display = 'none';
           showLoader();
-          const userLoggedIn = await login(this.inbloxKeyless);
+          const userLoggedIn = await login(this.safleKeyless);
 
           if (userLoggedIn.status === true) {
             const userData = userLoggedIn.data;
 
             this.isUserLoggedIn = userLoggedIn.status;
-            this.handleName = userData.handleName;
+            this.safleId = userData.safleId;
             this.publicAddress = userData.publicAddress;
 
             this.eventEmitter.emit(this.EVENTS.LOGIN_SUCCESS, {
               status: true,
               eventName: this.EVENTS.LOGIN_SUCCESS,
               data: {
-                handleName: userData.handleName,
+                safleId: userData.safleId,
                 publicAddress: userData.publicAddress,
               },
             });
@@ -276,7 +276,7 @@ export class Widget {
 
       signTranxButton.onclick = async () => {
         showLoader();
-        const signedTx = await signTransaction(this.inbloxKeyless, this.transactionData);
+        const signedTx = await signTransaction(this.safleKeyless, this.transactionData);
 
         if (signedTx.status) {
           this.signedTransaction = signedTx.hash;
@@ -313,7 +313,7 @@ export class Widget {
 
       signAndSendTranxButton.onclick = async () => {
         showLoader();
-        const sentAndSignedTranx = await signAndSendTransaction(this.inbloxKeyless, this.transactionData);
+        const sentAndSignedTranx = await signAndSendTransaction(this.safleKeyless, this.transactionData);
 
         if (sentAndSignedTranx.status === true) {
           this.eventEmitter.emit(
@@ -348,7 +348,7 @@ export class Widget {
     let network;
     let transactionUrl;
 
-    await this.inbloxKeyless.web3.eth.net.getNetworkType().then((e) => network = e);
+    await this.safleKeyless.web3.eth.net.getNetworkType().then((e) => network = e);
 
     if (network == 'main') {
       transactionUrl = MAINNET_ETHERSCAN_URL;

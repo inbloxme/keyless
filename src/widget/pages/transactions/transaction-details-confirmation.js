@@ -1,10 +1,10 @@
-import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../../assets/images';
+import { safleWidgetIcon, closeIcon, safleLogo } from '../../assets/images';
 
 export function transactionDetailsConfirmation(transactionData) {
   return `
   <div class="widget-modal-content active" id="transaction-details-confirmation">
     <div class="widget-modal-header">
-      ${inbloxWidgetIcon}
+      ${safleWidgetIcon}
       <h1>
         Confirm Transaction
       </h1>
@@ -31,8 +31,8 @@ export function transactionDetailsConfirmation(transactionData) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/" target="_blank">
-          ${inbloxMe}
+        <a href="https://getsafle.com/" target="_blank">
+          ${safleLogo}
         </a>
       </p>
     </div>

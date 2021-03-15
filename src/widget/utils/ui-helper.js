@@ -50,11 +50,11 @@ export function getActiveTabModal(activeId, options, transactionUrl) {
 }
 
 export async function generateModal(widgetInstance) {
-  let wrapper = document.getElementById('inbloxKeylessWidget');
+  let wrapper = document.getElementById('safleKeylessWidget');
 
   if (wrapper == null) {
     wrapper = document.createElement('div');
-    wrapper.id = 'inbloxKeylessWidget';
+    wrapper.id = 'safleKeylessWidget';
   }
   wrapper.innerHTML = `${widgetInstance.activeTab}`;
 
@@ -64,19 +64,19 @@ export async function generateModal(widgetInstance) {
   if (!container) container = document.getElementsByTagName('div');
   await container[0].appendChild(wrapper);
 
-  const inbloxKeylessWidget = document.getElementById('inbloxKeylessWidget');
+  const safleKeylessWidget = document.getElementById('safleKeylessWidget');
 
   const style = await document.createElement('style');
 
   style.innerHTML = exportCss();
-  if (inbloxKeylessWidget) await inbloxKeylessWidget.appendChild(style);
+  if (safleKeylessWidget) await safleKeylessWidget.appendChild(style);
 
   // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'hidden';
   document.body.scroll = 'no';
 
-  if (inbloxKeylessWidget && inbloxKeylessWidget.style) {
-    inbloxKeylessWidget.style.display = 'block';
+  if (safleKeylessWidget && safleKeylessWidget.style) {
+    safleKeylessWidget.style.display = 'block';
   }
 
   if (!widgetInstance.isInitialised) {
@@ -148,7 +148,7 @@ export function closeModal(widgetInstance, initMethod = 'useractivity') {
   // Prevent background scrolling when overlay appears
   document.documentElement.style.overflow = 'auto';
   document.body.scroll = 'yes';
-  document.getElementById('inbloxKeylessWidget').remove();
+  document.getElementById('safleKeylessWidget').remove();
 
   widgetInstance.eventEmitter.emit('KEYLESS_WIDGET_CLOSED', {
     status: true,
@@ -170,7 +170,7 @@ function initCloseEvents(widgetInstance) {
 
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = (event) => {
-    const customModal = document.getElementById('inbloxKeylessWidget');
+    const customModal = document.getElementById('safleKeylessWidget');
 
     if (customModal && event.target === customModal) {
       closeModal(widgetInstance);

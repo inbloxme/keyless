@@ -1,4 +1,4 @@
-import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
+import { safleWidgetIcon, closeIcon, safleLogo } from '../assets/images';
 
 import { loader } from './loaders/loader';
 
@@ -10,7 +10,7 @@ export function loginModal() {
     ${loader()}
     <!-- Header -->
     <div class="widget-modal-header">
-      ${inbloxWidgetIcon}
+      ${safleWidgetIcon}
       <h1>
         Login
       </h1>
@@ -18,7 +18,7 @@ export function loginModal() {
     <!-- Form -->
     <div class="widget-modal-form">
       <div class="widget-modal-input">
-        <label>Your inblox ID / Email <sup>*</sup></label>
+        <label>Your safle ID / Email <sup>*</sup></label>
         <input type="text" name="username or email" autocomplete="off" id="widget-user-email">
       </div>
       <div class="widget-modal-input">
@@ -37,14 +37,14 @@ export function loginModal() {
     </div>
     <!-- Links -->
     <div class="widget-modal-link">
-      <p>Don’t have an account? <a href="https://test-app.inblox.me/register" target="_blank">Sign Up here</a></p>
+      <p>Don’t have an account? <a href="https://test-app.getsafle.com/register" target="_blank">Sign Up here</a></p>
     </div>
     <!-- Footer -->
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/" target="_blank">
-          ${inbloxMe}
+        <a href="https://getsafle.com/" target="_blank">
+          ${safleLogo}
         </a>
       </p>
     </div>
@@ -72,6 +72,7 @@ export async function login(keylessInstance) {
 
   hideLoader();
   if (loginResponse.error) {
+
     document.getElementById('error-message').innerHTML = loginResponse.error;
     document.getElementById('error-message').style.display = 'block';
     return { status: false };

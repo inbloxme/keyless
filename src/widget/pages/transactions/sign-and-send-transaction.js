@@ -1,8 +1,8 @@
 import {
-  inbloxWidgetIcon,
+  safleWidgetIcon,
   closeIcon,
   backIcon,
-  inbloxMe,
+  safleLogo
 } from '../../assets/images';
 
 import { loader } from '../loaders/loader';
@@ -19,7 +19,7 @@ export function signAndSendTransactionModal(currentUser) {
       <div id="back-arrow-icon">
         ${backIcon}
       </div>
-      ${inbloxWidgetIcon}
+      ${safleWidgetIcon}
       <h1>
         Confirm Transaction
       </h1>
@@ -46,8 +46,8 @@ export function signAndSendTransactionModal(currentUser) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/" target="_blank">
-          ${inbloxMe}
+        <a href="https://getsafle.com/" target="_blank">
+          ${safleLogo}
         </a>
       </p>
     </div>

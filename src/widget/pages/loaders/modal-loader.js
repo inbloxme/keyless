@@ -1,12 +1,13 @@
 import { closeIcon } from '../../assets/images/close-icon';
+import { Loader } from '../../assets/images';
 
 export function ModalLoader() {
   return `
   <div class="widget-modal-content active" id="modal-loader">
   <div>
-    <div class="inblox-loader">
+    <div class="safle-loader">
       <div class="loader-container">
-        <img src="https://raw.githubusercontent.com/inbloxme/assets/master/loaders/universal.gif" alt="inblox-loader" />
+        ${Loader}
       </div>
     </div>
   </div>
