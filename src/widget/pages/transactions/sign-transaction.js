@@ -1,4 +1,4 @@
-import { inbloxWidgetIcon, inbloxMe, closeIcon } from '../../assets/images';
+import { safleWidgetIcon, closeIcon, safleLogo } from '../../assets/images';
 
 import { loader } from '../loaders/loader';
 
@@ -13,7 +13,7 @@ export function signTransactionModal(currentUser) {
   }" id="sign-transaction">
     ${loader()}
     <div class="widget-modal-header">
-      ${inbloxWidgetIcon}
+      ${safleWidgetIcon}
       <h1>
         Sign Transaction
       </h1>
@@ -41,8 +41,8 @@ export function signTransactionModal(currentUser) {
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/" target="_blank">
-          ${inbloxMe}
+        <a href="https://www.getsafle.com/" target="_blank">
+          ${safleLogo}
         </a>
       </p>
     </div>

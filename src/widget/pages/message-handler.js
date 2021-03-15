@@ -1,10 +1,10 @@
-import { inbloxWidgetIcon, closeIcon, inbloxMe } from '../assets/images';
+import { safleWidgetIcon, closeIcon, safleLogo } from '../assets/images';
 
 export function messageHandlerModal(message, transactionHash = null, transactionUrl) {
   return `
   <div class="widget-modal-content active" id="message-handler-modal">
     <div class="widget-modal-header">
-      ${inbloxWidgetIcon}
+      ${safleWidgetIcon}
       <h1>
         ${message != undefined ? message : 'Keyless Widget'}
       </h1>
@@ -29,7 +29,7 @@ export function messageHandlerModal(message, transactionHash = null, transaction
         Click Ok to continue
       </p>
       <div class="widget-modal-button">
-        <button id="ok-button">
+        <button id="ok-button" class="btn-centered">
           Ok
         </button>
       </div>
@@ -37,8 +37,8 @@ export function messageHandlerModal(message, transactionHash = null, transaction
     <div class="widget-modal-footer">
       <p>
         powered by
-        <a href="https://inblox.me/" target="_blank">
-          ${inbloxMe}
+        <a href="https://www.getsafle.com/" target="_blank">
+          ${safleLogo}
         </a>
       </p>
     </div>

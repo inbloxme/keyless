@@ -1,28 +1,28 @@
 export function exportCss() {
-  return `body {
+  return `#safleKeylessWidget {
     font-family: 'Poppins', sans-serif !important;
     font-weight: 300;
   }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  #safleKeylessWidget h1,
+  #safleKeylessWidget h2,
+  #safleKeylessWidget h3,
+  #safleKeylessWidget h4,
+  #safleKeylessWidget h5,
+  #safleKeylessWidget h6 {
     margin: 0px;
     color: #2e2e2f;
     font-weight: 400;
   }
-  p {
+  #safleKeylessWidget p {
     margin: 0px;
   }
-  input {
+  #safleKeylessWidget input {
     outline: 0;
   }
   .widget-modal-content {
     position: fixed;
-    bottom: 20%;
-    right: 35%;
+    left: 50%;
+    top: 50%;
     background-color: #fff;
     z-index: 9;
     box-shadow: 0px 2px 8px #00000014;
@@ -31,6 +31,7 @@ export function exportCss() {
     padding: 30px 40px;
     width: 478px;
     display: none;
+    transform: translate(-50%,-50%);
   }
   .widget-modal-content.active {
     display: block;
@@ -52,6 +53,7 @@ export function exportCss() {
     line-height: 25px;
     display: flex;
     justify-content: center;
+    align-items: center;
   }
   .widget-modal-footer p a {
     color: #1f4788;
@@ -66,7 +68,7 @@ export function exportCss() {
     cursor: pointer;
   }
   .widget-modal-button button {
-    color: #fff;
+    /*color: #fff;
     background-image: linear-gradient(to right, #12bde2, #0669f8);
     border-radius: 23px;
     padding: 7px 50px;
@@ -75,7 +77,38 @@ export function exportCss() {
     outline: 0;
     width: 100%;
     cursor: pointer;
-    border: none;
+    border: none;*/
+    
+    outline: 0;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 1rem 3rem;
+    text-align: center;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 2.5rem;
+    min-width: 15rem;
+    background-color: #0669F8;
+    border: 0px;
+    transition: all 250ms ease-in-out;
+    -webkit-transition: all 250ms ease-in-out;
+    -moz-transition: all 250ms ease-in-out;
+    -o-transition: all 250ms ease-in-out;
+  }
+  .widget-modal-button button:hover {
+    color: #fff;
+    background-color: #12BDE2;
+    opacity: 0.6;
+  }
+  .widget-modal-button button#login-button,
+  #transaction-confirm-button,
+  #sign-tranx-button,
+  #sign-and-send-tranx-button,
+  .btn-centered {
+    margin-left: auto;
+    margin-right: auto;
   }
   .widget-modal-input {
     margin-bottom: 1rem;
@@ -87,7 +120,7 @@ export function exportCss() {
     display: block;
   }
   .widget-modal-input input {
-    border-radius: 20px;
+    /*border-radius: 20px;
     width: 95%;
     padding: 0.44rem 0.75rem;
     font-size: 13px;
@@ -95,7 +128,22 @@ export function exportCss() {
     color: #6f6f6f;
     background-color: #fff;
     border: 1px solid #d1d3e2;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;*/
+
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    opacity: 1;
+    line-height: 1.2;
+    padding: 1.3rem 1rem;
+    box-sizing: border-box;
+    z-index: 35;
+    max-width: 100%;
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e4e5e6;
+    outline: none;
   }
   
   .widget-modal-link {
@@ -314,13 +362,14 @@ export function exportCss() {
     z-index: 9;
     top: 0;
   }
-  #inbloxKeylessWidget {
+  #safleKeylessWidget {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
     position: fixed;
     z-index: 9;
     top: 0;
+    left: 0;
   }
   #back-arrow-icon {
     float: left;
@@ -340,7 +389,7 @@ export function exportCss() {
   #loader {
     display: none;
   }
-  .inblox-loader {
+  .safle-loader {
     background-color: #a09e9ee3;
     position: absolute;
     height: 100%;
@@ -364,17 +413,37 @@ export function exportCss() {
     text-align: center;
   }
   
-  .loader-container img {
+  .loader-container svg {
     width: 80%;
+    transform: scale(1);
+    animation: beat 1.4s 0s linear infinite;
   }
+  @keyframes beat {
+    0% {
+      transform: scale(1)
+    }
+    50% {
+      transform: scale(1.15)
+    }
+    100% {
+      transform: scale(1)
+    }
+  }
+
   
   @media only screen and (max-width: 767px) {
+    #safleKeylessWidget {
+      left: 0;
+      
+    }
     .widget-modal-content {
-      width: 92%;
+      max-width: 100%;
       margin: 15px;
       bottom: initial;
-      right: initial;
+      right: 0;
+      left: 0;
       padding: 15px;
+      width: auto;
     }
     .widget-modal-header h1 {
       font-size: 18px;
