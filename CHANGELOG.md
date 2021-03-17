@@ -156,3 +156,9 @@
 
 *Updated all the instances of Inblox to Safle.
 *Updated the widget logo and color schemes as per the new brand guidelines.
+
+### 1.3.7 (2021-03-17)
+
+##### Fixing footer logo alignment.
+
+*Powered by safle logo alignment updated.
