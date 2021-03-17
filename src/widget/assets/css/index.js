@@ -51,6 +51,7 @@ export function exportCss() {
     color: #707070;
     font-size: 10px;
     line-height: 25px;
+    height: 25px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -58,6 +59,9 @@ export function exportCss() {
   .widget-modal-footer p a {
     color: #1f4788;
     margin-left: 5px;
+    height: 25px;
+    display: inline-block;
+    margin-top:-10px;
   }
   .widget-modal-footer p a svg {
     width: 60px;
