@@ -371,7 +371,7 @@ export function exportCss() {
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
     position: fixed;
-    z-index: 9;
+    z-index: 99999;
     top: 0;
     left: 0;
   }
@@ -448,6 +448,7 @@ export function exportCss() {
       left: 0;
       padding: 15px;
       width: auto;
+      transform: translate( 0, -50% );
     }
     .widget-modal-header h1 {
       font-size: 18px;

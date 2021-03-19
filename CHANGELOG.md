@@ -162,3 +162,9 @@
 ##### Fixing footer logo alignment.
 
 *Powered by safle logo alignment updated.
+
+### 1.0.1 (2021-03-17)
+
+##### Fixing footer  alignment.
+
+* Footer alignment updated.
