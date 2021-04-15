@@ -1,16 +1,16 @@
-# **Keyless Transactions - Inbloxme**
+# **Keyless Transactions - Safle**
 
-This package enables usage of inblox handlename infrastructure as a keyless signing mechanism.
+This package enables usage of SafleID infrastructure as a keyless signing mechanism.
 
 > Disclaimer - This is WIP, and release in beta.
 
-## **Keyless Tranasctions**
+## **Keyless Transactions**
 
 Talking about user adoption, the bottleneck faced by most of the dApps is the user onboarding flow. The user needs to have a wallet, generating and operating a wallet is cumbersome for a new crypto user.
 
 Keyless transactions abstracts the private key from the user and allows the user to sign transaction in an easy way while having the same level of security as before.
 
-Inblox Keyless Transactions allow users to sign transactions via,
+safle Keyless Transactions allow users to sign transactions via,
 
 1. Password
 2. Biometrics A. Fingerprint B. FaceID
@@ -24,10 +24,10 @@ Happy #BUIDLing
 
 ## **Design Principles**
 
-1. **Private Key Abstraction** - Inbloxme infrastructure never have the visibility of the private key, it's encrypted on the client with the user password(unsalted & unencrypted) and sent to the virtual Hardware Security Module for safe storage.
+1. **Private Key Abstraction** - SafleID infrastructure never have the visibility of the private key, it's encrypted on the client with the user password(unsalted & unencrypted) and sent to the virtual Hardware Security Module for safe storage.
 2. **Password Invisibility** - User password is never exposed in plain text to any of the systems apart from the client.
-3. **Non-Custodial Relationship** - User Private Key is always exportable and encrypted version can be deleted (redundant) from the inbloxme infrastructure.
-4. **App Agnostic** - Any application without getting an API key can access inbloxme handlename service, password based transaction signing requires special access which can be requested for. (In Alpha Testing).
+3. **Non-Custodial Relationship** - User Private Key is always exportable and encrypted version can be deleted (redundant) from the Safle infrastructure.
+4. **App Agnostic** - Any application without getting an API key can access SafleID service, password based transaction signing requires special access which can be requested for. (In Alpha Testing).
 
 ## **Installation and Usage**
 
@@ -35,11 +35,11 @@ Happy #BUIDLing
 
 Install the package by running the command,
 
-`npm install @inbloxme/keyless`
+`npm install @getsafle/keyless-transactions`
 
 Import the package into your project using,
 
-`const inblox = require('@inbloxme/keyless');`
+`const safle = require('@getsafle/keyless-transactions');`
 
 ## **Keyless Transactions**
 
@@ -47,7 +47,7 @@ Import the package into your project using,
 
 Initialise the constructor using,
 
-`const keyless = new inblox.Keyless(apiKey, apiSecret, web3URL);` 
+`const keyless = new safle.Keyless(apiKey, apiSecret, web3URL);` 
 
 `apiKey` - The API Key for this SDK. 
 `apiSecret` - The API Secret for this SDK.
@@ -59,8 +59,8 @@ This method can be used to sign a transaction using the user's private key. The 
 
 `const getUser = keyless.getUser({ userName, password });`
 
-`userName` - The Inblox username of the user. 
-`password` - The Inblox password of the user.
+`userName` - The Safle username of the user. 
+`password` - The Safle password of the user.
 
 
 > Sign Transaction
@@ -71,7 +71,7 @@ This method can be used to sign a transaction using the user's private key. The 
 
 `to` (required) - THe address of the recepient.
 `value` (required) - The amount to be sent.
-`password` (required) - The Inblox password of the user.
+`password` (required) - The Safle password of the user.
 `gasPrice` (optional) - The gas price.
 `gasLimit` (optional) - Gas Limit.
 `data` (optional) - Data.
@@ -95,7 +95,7 @@ This method can be used to sign a transaction using the user's private key. The 
 
 `to` (required) - THe address of the recepient.
 `value` (required) - The amount to be sent.
-`password` (required) - The Inblox password of the user.
+`password` (required) - The Safle password of the user.
 `gasPrice` (optional) - The gas price.
 `gasLimit` (optional) - Gas Limit.
 `data` (optional) - Data.
@@ -104,11 +104,11 @@ This method can be used to sign a transaction using the user's private key. The 
 
 > Validate password and get Encrypted Private Key
 
-This method can be used to validate a user's password and if successful, fetch the user's encrypted private key from Inblox KMS.
+This method can be used to validate a user's password and if successful, fetch the user's encrypted private key from Safle KMS.
 
 `const encryptedPKey = keyless.validatePasswordAndGetPKey({ password });`
 
-`password` (required) - The Inblox password of the user.
+`password` (required) - The Safle password of the user.
 
 
 > Change Password
@@ -125,7 +125,7 @@ This method can be used to change a user's existing password. This method has to
 
 > Reset Password
 
-This method is used to reset the password of the user incase the user forget's their password. The user needs to provide any of their below mentioned wallet info to recover their private key to reencrypt and store it in the Inblox KMS.
+This method is used to reset the password of the user incase the user forget's their password. The user needs to provide any of their below mentioned wallet info to recover their private key to reencrypt and store it in the Safle KMS.
 
 `const resetPassword = keyless.resetPassword({ privateKey, seedPhrase, encryptedJson, walletPassword, newPassword });`
 
@@ -146,7 +146,7 @@ If the user wishes to input the `encryptedJson`, then they also have to input th
 
 Initialise the constructor using,
 
-`const Wallet = new inblox.Wallet();`
+`const Wallet = new safle.Wallet();`
 
 
 > Create a new wallet
@@ -190,4 +190,4 @@ Want to contribute, we would ❤️ that!
 
 We are a Global 🌏🌍🌎 team! 💪
 
-Write to [dev@inblox.me](mailto:dev@inblox.me), or follow us on twitter, [https://twitter.com/inblox_me](https://twitter.com/inblox_me)
+Write to [dev@getsafle.com](mailto:dev@getsafle.com), or follow us on twitter, [https://twitter.com/getsafle](https://twitter.com/getsafle)
