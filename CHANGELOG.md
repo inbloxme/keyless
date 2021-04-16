@@ -168,3 +168,9 @@
 ##### Fixing footer  alignment.
 
 * Footer alignment updated.
+
+### 1.0.2 (2021-04-16)
+
+##### Updated README.
+
+* Updated all the instances of inblox to safle inside the README file.
