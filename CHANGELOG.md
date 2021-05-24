@@ -174,3 +174,9 @@
 ##### Updated README.
 
 * Updated all the instances of inblox to safle inside the README file.
+
+### 1.0.3 (2021-05-24)
+
+##### Added bundle file.
+
+* Added a minified js file of keyless package
